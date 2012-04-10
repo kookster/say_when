@@ -2,8 +2,8 @@ module SayWhen
 
   class Scheduler
 
-    DEFAULT_STORE_CLASS_NAME = 'SayWhen::MemorySchedulerStore'
-    DEFAULT_PROCESS_CLASS_NAME = 'SayWhen::SimpleProcessor'
+    DEFAULT_STORE_CLASS_NAME = 'SayWhen::Store::Memory::Store'
+    DEFAULT_PROCESS_CLASS_NAME = 'SayWhen::Processor::Simple'
     @@scheduler = nil
     @@mutex = Mutex.new
     
