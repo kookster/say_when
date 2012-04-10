@@ -5,7 +5,7 @@ module SayWhen
 
     def test_nth_day_of_week
       # get first sunday in the month with "1#1"
-      ce = CronExpression.new("0 0 12 ? * 1#1 *", 'Pacific Time (US & Canada)')
+      ce = SayWhen::CronExpression.new("0 0 12 ? * 1#1 *", 'Pacific Time (US & Canada)')
       assert_not_nil ce
     
       nfa = ce.next_fire_at(Time.utc(2008,1,1))

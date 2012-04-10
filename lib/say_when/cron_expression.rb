@@ -1,3 +1,5 @@
+require 'date'
+
 module SayWhen
 
   # Based on the extended cron capabilties 

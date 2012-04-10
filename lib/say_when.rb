@@ -1,3 +1,5 @@
+require 'active_support'
+
 require "say_when/version"
 require 'say_when/scheduler'
 require 'say_when/cron_expression'
