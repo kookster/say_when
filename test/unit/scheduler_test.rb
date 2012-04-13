@@ -1,5 +1,17 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
+
+module SayWhen
+
+  class TestTask
+  
+    def execute(data)
+      puts "say_when/test_task received: #{data.inspect}"
+    end
+  
+  end
+end
+
 module SayWhen
   class SchedulerTest < Test::Unit::TestCase
     

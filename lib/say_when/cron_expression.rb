@@ -70,15 +70,15 @@ module SayWhen
     def next_fire_at(time=nil)
       Time.zone = @time_zone
       after = time.nil? ? Time.zone.now : time.in_time_zone(@time_zone)
-      after = 1.second.since(after)
+      # after = 1.second.since(after)
       # puts "next fire at after: #{after.inspect}"
 
       while (true)
         [years, months, days_of_month, days_of_week, hours, minutes, seconds].each do |cron_value|
           # puts "next_fire_at cron val loop: #{cron_value.part}"
-          # puts "before move_to_next: #{after}"
+          # puts "before move_to_next: #{after.inspect}"
           after, changed = move_to_next(cron_value, after)
-          # puts "after move_to_next:  #{after}"
+          # puts "after move_to_next:  #{after.inspect}"
           return if after.nil?
           break if changed
         end
@@ -92,7 +92,7 @@ module SayWhen
     def last_fire_at(time=nil)
       Time.zone = @time_zone
       before = time.nil? ? Time.zone.now : time.in_time_zone(@time_zone)
-      before = 1.second.ago(before)
+      # before = 1.second.ago(before)
       # puts "last fire at before: #{before.inspect}"
 
       while (true)
@@ -188,7 +188,7 @@ module SayWhen
     end
 
     def next(date)
-      date = date.to_time
+      # date = date.to_time
       n = self.values.detect{|v| v > date.sec}
       if n.blank?
         1.minute.since(date).change(:sec=>self.values.first)
@@ -198,7 +198,7 @@ module SayWhen
     end
     
     def last(date)
-      date = date.to_time
+      # date = date.to_time
       n = self.values.reverse.detect{|v| v < date.sec}
       if n.blank?
         1.minute.ago(date).change(:sec=>self.values.last)
@@ -216,7 +216,7 @@ module SayWhen
     end
 
     def next(date)
-      date = date.to_time
+      # date = date.to_time
       n = self.values.detect{|v| v > date.min}
       if n.blank?
         1.hour.since(date).change(:min=>self.values.first, :sec=>0)
@@ -226,7 +226,7 @@ module SayWhen
     end
 
     def last(date)
-      date = date.to_time
+      # date = date.to_time
       n = self.values.reverse.detect{|v| v < date.min}
       if n.blank?
         1.hour.ago(date).change(:min=>self.values.last, :sec=>59)
@@ -242,7 +242,8 @@ module SayWhen
     end
     
     def next(date)
-      date = date.to_time
+      # date = date.to_time
+      # puts "HoursCronValue next: date: #{date.inspect}, hour: #{date.hour}"
       n = self.values.detect{|v| v > date.hour}
       if n.blank?
         1.day.since(date).change(:hour=>self.values.first, :min=>0, :sec=>0)
@@ -252,7 +253,7 @@ module SayWhen
     end
 
     def last(date)
-      date = date.to_time
+      # date = date.to_time
       n = self.values.reverse.detect{|v| v < date.hour}
       if n.blank?
         1.day.ago(date).change(:hour=>self.values.last, :min=>59, :sec=>59)

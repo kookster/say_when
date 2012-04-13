@@ -20,13 +20,13 @@ module SayWhen
       nfa = ce.last_fire_at(Time.utc(2008,1,5))
       assert_equal '2007-12-02 12:00:00 -0800', nfa.to_s 
 
-      nfa = ce.last_fire_at(nfa)
+      nfa = ce.last_fire_at(Time.parse('2007-12-02 12:00:00 -0800') - 1.second)
       assert_equal '2007-11-04 12:00:00 -0800', nfa.to_s 
 
-      nfa = ce.last_fire_at(nfa)
+      nfa = ce.last_fire_at(Time.parse('2007-11-04 12:00:00 -0800') - 1.second)
       assert_equal '2007-10-07 12:00:00 -0700', nfa.to_s 
 
-      nfa = ce.next_fire_at(nfa)
+      nfa = ce.next_fire_at(Time.parse('2007-10-07 12:00:00 -0700') + 1.second)
       assert_equal '2007-11-04 12:00:00 -0800', nfa.to_s 
 
     end
@@ -35,9 +35,11 @@ module SayWhen
       # get last sunday in the month with "1L"
       ce = CronExpression.new("0 0 12 ? * 1L *", 'Pacific Time (US & Canada)')
       assert_not_nil ce
+
+      assert_equal 'Pacific Time (US & Canada)', ce.time_zone
     
       nfa = ce.next_fire_at(Time.utc(2008,1,1))
-      assert_equal '2008-01-27 12:00:00 -0800', nfa.to_s
+      assert_equal Time.parse('2008-01-27 12:00:00 -0800'), nfa
 
       nfa = ce.next_fire_at(Time.utc(2008,1,28))
       assert_equal '2008-02-24 12:00:00 -0800', nfa.to_s
@@ -51,10 +53,10 @@ module SayWhen
       nfa = ce.last_fire_at(Time.utc(2007,12,1))
       assert_equal '2007-11-25 12:00:00 -0800', nfa.to_s
 
-      nfa = ce.last_fire_at(nfa)
+      nfa = ce.last_fire_at(nfa - 1.second)
       assert_equal '2007-10-28 12:00:00 -0700', nfa.to_s
 
-      nfa = ce.next_fire_at(nfa)
+      nfa = ce.next_fire_at(nfa + 1.second)
       assert_equal '2007-11-25 12:00:00 -0800', nfa.to_s
     end
     

@@ -4,32 +4,46 @@ module SayWhen
 
       # define a trigger class
       class Trigger < ::ActiveRecord::Base
+
         set_table_name "say_when_triggers"
+
         belongs_to :job
         belongs_to :scheduled, :polymorphic=>true
+
         serialize :data
 
-        # ready to be run, just waiting for its turn
-        STATE_WAITING = 'waiting'
+        composed_of :cron_expression, :class_name=>'SayWhen::CronExpression', :mapping=>[[:expression, :expression], [:time_zone, :time_zone]]
+  
+        def self.define(options)
+          ce = CronExpression.new(options.delete(:cron_expression), options.delete(:time_zone))
+          ct = CronTrigger.new(options)
+          ct.cron_expression = ce
+          ct.scheduled = options.delete(:scheduled)
+          ct
+        end
 
-        # has been acquired b/c it is time to be triggered
-        STATE_ACQUIRED = 'acquired'
-
-        # # related job for the trigger is executing
-        # STATE_EXECUTING = 'executing'
-
-        # "Complete" means the trigger has no remaining fire times
-        STATE_COMPLETE = 'complete'
-
-        # A Trigger arrives at the error state when the scheduler
-        # attempts to fire it, but cannot due to an error creating and executing
-        # its related job.
-        STATE_ERROR = 'error'
+        def before_create
+          self.status = STATE_WAITING
+          self.next_fire_at = self.cron_expression.next_fire_at(Time.now)
+        end
 
         def fired
-          raise "gotta implement this in subclasses"
+          CronTrigger.transaction {
+            fired = Time.now
+            self.lock!
+            next_fire = self.cron_expression.next_fire_at(fired)
+            self.last_fire_at = fired
+            self.next_fire_at = next_fire
+
+            if next_fire.nil?
+              self.status = STATE_COMPLETE
+            else
+              self.status = STATE_WAITING
+            end
+            self.save!
+          }
         end
-  
+
         def <=>(trigger)
           self.next_fire_at.to_i <=> trigger.next_fire_at.to_i
         end
