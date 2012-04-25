@@ -17,8 +17,23 @@ module SayWhen
     # its related job.
     STATE_ERROR = 'error'
 
-    def fired(time=Time.now)
-      raise NotImplementedError.new("Implement what to do to update the trigger state after it has been triggered.")
+    def lock
+    	@_lock ||= Mutex.new
+    end
+
+    def fired
+      self.lock.synchronize {
+        fired = Time.now
+        next_fire = self.cron_expression.next_fire_at(fired)
+        self.last_fire_at = fired
+        self.next_fire_at = next_fire
+
+        if next_fire.nil?
+          self.status = STATE_COMPLETE
+        else
+          self.status = STATE_WAITING
+        end
+      }
     end
 
   end

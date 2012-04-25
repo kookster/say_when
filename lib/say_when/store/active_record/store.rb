@@ -1,5 +1,6 @@
 require 'active_record'
 
+require 'say_when/cron_expression'
 require 'say_when/store/active_record/trigger'
 require 'say_when/store/active_record/job'
 require 'say_when/store/active_record/job_execution'

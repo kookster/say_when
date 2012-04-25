@@ -1,3 +1,6 @@
+require 'say_when/base_trigger'
+require 'say_when/cron_expression'
+
 module SayWhen
   module Store
     module ActiveRecord
@@ -5,22 +8,26 @@ module SayWhen
       # define a trigger class
       class Trigger < ::ActiveRecord::Base
 
-        set_table_name "say_when_triggers"
+        
+        include SayWhen::BaseTrigger
 
-        belongs_to :job
-        belongs_to :scheduled, :polymorphic=>true
+        self.table_name = "say_when_triggers"
 
-        serialize :data
+        belongs_to  :job
+        belongs_to  :scheduled, :polymorphic=>true
 
-        composed_of :cron_expression, :class_name=>'SayWhen::CronExpression', :mapping=>[[:expression, :expression], [:time_zone, :time_zone]]
-  
-        def self.define(options)
-          ce = CronExpression.new(options.delete(:cron_expression), options.delete(:time_zone))
-          ct = CronTrigger.new(options)
-          ct.cron_expression = ce
-          ct.scheduled = options.delete(:scheduled)
-          ct
-        end
+        serialize   :data
+
+        composed_of :cron_expression,
+                    :class_name => 'SayWhen::CronExpression',
+                    :mapping    => [[:expression, :expression], [:time_zone, :time_zone]],
+                    :converter  => Proc.new{ |e| 
+                      if e.is_a?(Hash)
+                        SayWhen::CronExpression.new(e[:expression], e[:time_zone])
+                      else
+                        SayWhen::CronExpression.new(e.to_s)
+                      end
+                    }
 
         def before_create
           self.status = STATE_WAITING
@@ -28,18 +35,8 @@ module SayWhen
         end
 
         def fired
-          CronTrigger.transaction {
-            fired = Time.now
-            self.lock!
-            next_fire = self.cron_expression.next_fire_at(fired)
-            self.last_fire_at = fired
-            self.next_fire_at = next_fire
-
-            if next_fire.nil?
-              self.status = STATE_COMPLETE
-            else
-              self.status = STATE_WAITING
-            end
+          Trigger.transaction {
+            super
             self.save!
           }
         end
