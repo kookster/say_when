@@ -1,6 +1,10 @@
 module SayWhen
   module BaseStore
 
+    def lock
+        @_lock ||= Mutex.new
+    end
+
     def add_trigger(item)
     end
 
@@ -21,6 +25,9 @@ module SayWhen
     end
 
     def trigger_fired(trigger)
+    end
+
+    def trigger_error(trigger, exception)
     end
 
   end

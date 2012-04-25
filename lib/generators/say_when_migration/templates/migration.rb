@@ -1,6 +1,16 @@
 class SayWhenMigration < ActiveRecord::Migration
   def self.up
-    create_table :say_when_triggers do |t|
+
+    create_table :say_when_job_executions, :force => true do |t|
+      t.integer  :job_id
+      t.integer  :trigger_id
+      t.string   :status
+      t.text     :result
+      t.datetime :start_at
+      t.datetime :end_at
+    end
+
+    create_table :say_when_triggers, :force => true do |t|
       t.references :job
       t.string :type
       t.string :name
@@ -8,8 +18,6 @@ class SayWhenMigration < ActiveRecord::Migration
       t.string :data
       t.string :expression
       t.string :status
-      t.boolean :is_paused
-      t.boolean :is_blocked
       t.timestamp :last_fire_at
       t.timestamp :next_fire_at
       t.timestamp :start_at
@@ -18,7 +26,7 @@ class SayWhenMigration < ActiveRecord::Migration
       t.timestamps
     end
 
-    create_table :say_when_jobs do |t|
+    create_table :say_when_jobs, :force => true do |t|
       t.string :name
       t.string :group
       t.string :data

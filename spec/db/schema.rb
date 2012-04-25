@@ -1,4 +1,14 @@
 ActiveRecord::Schema.define(:version => 0) do
+
+  create_table :say_when_job_executions, :force => true do |t|
+    t.integer  :job_id
+    t.integer  :trigger_id
+    t.string   :status
+    t.text     :result
+    t.datetime :start_at
+    t.datetime :end_at
+  end
+
   create_table :say_when_triggers, :force => true do |t|
     t.references :job
     t.string :type

@@ -1,3 +1,5 @@
+require 'say_when/store/memory/base'
+
 module SayWhen
   module Store
     module Memory
@@ -5,9 +7,10 @@ module SayWhen
       # define a trigger class
       class Job
 
+        include SayWhen::Store::Memory::Base
       	include SayWhen::BaseJob
 
-      	attr_accessor :triggers, :name, :group, :data, :job_class, :job_method
+      	has_properties :triggers, :name, :group, :data, :job_class, :job_method
 
       end
 

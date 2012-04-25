@@ -15,9 +15,7 @@ module SayWhen
 
         belongs_to  :job
         belongs_to  :scheduled, :polymorphic=>true
-
         serialize   :data
-
         composed_of :cron_expression,
                     :class_name => 'SayWhen::CronExpression',
                     :mapping    => [[:expression, :expression], [:time_zone, :time_zone]],
@@ -39,10 +37,6 @@ module SayWhen
             super
             self.save!
           }
-        end
-
-        def <=>(trigger)
-          self.next_fire_at.to_i <=> trigger.next_fire_at.to_i
         end
       end
 

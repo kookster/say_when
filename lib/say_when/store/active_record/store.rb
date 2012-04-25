@@ -103,24 +103,3 @@ module SayWhen
     end
   end
 end
-
-# fix for yaml serialization 
-# http://dev.rubyonrails.org/ticket/7537 
-# http://yaml4r.sourceforge.net/doc/page/type_families.htm
-# http://itsignals.cascadia.com.au/?p=10
-YAML.add_domain_type("ActiveRecord,2008", "") do |type, val|
-  klass = type.split(':').last.constantize
-  YAML.object_maker(klass, val)
-end
-
-class ActiveRecord::Base
-  def to_yaml_type
-    "!ActiveRecord,2008/#{self.class}"
-  end
-end
-
-class ActiveRecord::Base
-  def to_yaml_properties
-    ['@attributes']
-  end
-end

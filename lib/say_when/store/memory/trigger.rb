@@ -22,6 +22,11 @@ module SayWhen
           self.next_fire_at = self.cron_expression.next_fire_at(Time.now) if self.cron_expression
         end
 
+        def <=>(trigger)
+          self.next_fire_at.to_i <=> trigger.next_fire_at.to_i
+        end
+
+
       end
 
     end

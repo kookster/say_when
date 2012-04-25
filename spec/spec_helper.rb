@@ -15,3 +15,15 @@ Dir[File.expand_path(File.join(File.dirname(__FILE__),'support','**','*.rb'))].e
 Spec::Runner.configure do |config|
   config.mock_with :rspec
 end
+
+module SayWhen
+  module Test
+
+    class TestTask
+      def execute(data)
+        data[:result] || 0
+      end
+    end
+
+  end
+end

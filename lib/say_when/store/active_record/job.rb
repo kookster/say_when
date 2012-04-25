@@ -1,3 +1,6 @@
+require 'say_when/base_job'
+require 'say_when/store/active_record/job_execution'
+
 module SayWhen
   module Store
     module ActiveRecord
@@ -6,17 +9,20 @@ module SayWhen
 
         include SayWhen::BaseJob
 
-        set_table_name "say_when_jobs"
-        has_many :triggers
-        has_many :job_executions
+        self.table_name = "say_when_jobs"
+
+        has_many  :triggers
+        has_many  :job_executions
         serialize :data
 
         # default impl with some error handling and result recording
-        def execute(trigger)
-          begin
-            execution = JobExecution.create(:job=>self, :status=>'executing', :start_at=>Time.now)
+        def execute(trigger=nil)
+          result = nil
+          execution = SayWhen::Store::ActiveRecord::JobExecution.create(:job=>self, :status=>'executing', :start_at=>Time.now, :trigger=>trigger)
 
-            execution.result = execute_job
+          begin
+            result = self.execute_job((data || {}).merge(:trigger=>trigger))
+            execution.result = result
             execution.status = 'complete'
           rescue Object=>ex
             execution.result = "#{ex.class.name}: #{ex.message}\n\t#{ex.backtrace.join("\n\t")}"
@@ -25,25 +31,9 @@ module SayWhen
 
           execution.end_at = Time.now
           execution.save!
+          result
         end
-    
-        # def execute_job
-        #   tm = (self.job_method || 'execute').to_sym
-        #   tc = self.job_class.constantize
-        #   task = if tc.respond_to?(tm)
-        #     tc
-        #   else
-        #     to = tc.new
-        #     if to.respond_to?(tm)
-        #       to
-        #     else
-        #       raise "Neither #{self.job_class} class nor instance respond to #{tm}"
-        #     end
-        #   end
-
-        #   task.send(tm, data)
-        # end
-
+        
       end
     
     end
