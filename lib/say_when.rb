@@ -1,9 +1,7 @@
 require 'active_support'
 
 require "say_when/version"
-require 'say_when/base_trigger'
 require 'say_when/base_job'
-require 'say_when/base_store'
 require 'say_when/cron_expression'
 require 'say_when/processor/base'
 require 'say_when/processor/simple'
@@ -19,13 +17,6 @@ module SayWhen
       @@logger = Logger.new(STDOUT) unless defined?(@@logger)
     end
     @@logger
-  end
-
-  def SayWhen.store=(store)
-  	if !defined?(@@store) || @@store.nil?
-  		@@store = store
-  		require "say_when/store/#{store}/store"
-  	end
   end
 
 end

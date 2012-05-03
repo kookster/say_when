@@ -25,5 +25,22 @@ module SayWhen
       end
     end
 
+    class TestProcessor < SayWhen::Processor::Base
+      attr_accessor :jobs
+
+      def initialize(scheduler)
+        super(scheduler)
+        reset
+      end
+
+      def process(job)
+        self.jobs << job
+      end
+
+      def reset
+        self.jobs = []
+      end
+    end
+
   end
 end

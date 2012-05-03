@@ -9,25 +9,29 @@ module SayWhen
     attr_accessor :time_zone, :seconds, :minutes, :hours, :days_of_month, :months, :days_of_week, :years
 
     def initialize(expression, time_zone=nil)
-      # puts "CronExpression init: #{expression} #{time_zone}"
       if expression.is_a?(Hash)
         opts = expression
 
-        [:days_of_month, :days_of_week].each do |f|
-          opts[f] ||= '?'
-        end
+        @expression = if opts[:expression]
+          opts[:expression]
+        else
+          [:days_of_month, :days_of_week].each do |f|
+            opts[f] ||= '?'
+          end
 
-        [:seconds, :minutes, :hours, :days_of_month, :months, :days_of_week, :years].each do |f|
-          opts[f] ||= '*'
+          [:seconds, :minutes, :hours, :days_of_month, :months, :days_of_week, :years].each do |f|
+            opts[f] ||= '*'
+          end
+          
+          "#{opts[:seconds]} #{opts[:minutes]} #{opts[:hours]} #{opts[:days_of_month]} #{opts[:months]} #{opts[:days_of_week]} #{opts[:years]}"
         end
-        
-        @expression = "#{opts[:seconds]} #{opts[:minutes]} #{opts[:hours]} #{opts[:days_of_month]} #{opts[:months]} #{opts[:days_of_week]} #{opts[:years]}"
         
         @time_zone = if opts.has_key?(:time_zone) && !opts[:time_zone].blank?
-            opts[:time_zone]
-          else
-            Time.zone.nil? ? "UTC" : Time.zone.name
-          end        
+          opts[:time_zone]
+        else
+          Time.zone.nil? ? "UTC" : Time.zone.name
+        end
+
       else
         @expression = expression
         @time_zone = if time_zone.blank?

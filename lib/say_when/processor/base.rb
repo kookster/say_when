@@ -8,8 +8,8 @@ module SayWhen
         @scheduler = scheduler
       end
     
-      def process(trigger)   
-        raise 'you gonna have to implement this buddy'
+      def process(job)
+        raise NotImplementedError.new('You need to implement process(job)')
       end
     end
 
