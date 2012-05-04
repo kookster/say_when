@@ -24,11 +24,7 @@ module SayWhen
       def next_fire_at(time=Time.now)
         once_at if once_at >= time
       end
-
-      def last_fire_at(time=Time.now)
-        once_at if once_at <= time
-      end
-
+      
     end
   end
 end

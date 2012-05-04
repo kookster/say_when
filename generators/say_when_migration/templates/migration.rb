@@ -3,6 +3,9 @@ class SayWhenMigration < ActiveRecord::Migration
 
     create_table :say_when_jobs, :force => true do |t|
 
+      t.string    :group
+      t.string    :name
+
       t.string    :status
 
       t.string    :trigger_strategy
@@ -18,6 +21,9 @@ class SayWhenMigration < ActiveRecord::Migration
       t.string    :job_method
       t.text      :data
 
+      t.string    :scheduled_type
+      t.integer   :scheduled_id
+
       t.timestamps
     end
 
@@ -31,7 +37,9 @@ class SayWhenMigration < ActiveRecord::Migration
     
     add_index :say_when_jobs, :status
     add_index :say_when_jobs, :next_fire_at
+    add_index :say_when_job_executions, :job_id
   end
+
   
   def self.down
     drop_table :say_when_job_executions

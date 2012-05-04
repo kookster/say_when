@@ -17,10 +17,6 @@ module SayWhen
         cron_expression.next_fire_at(time)
       end
 
-      def last_fire_at(time=Time.now)
-        cron_expression.last_fire_at(time)
-      end
-
     end
   end
 end

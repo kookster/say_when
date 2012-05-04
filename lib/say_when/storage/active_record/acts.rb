@@ -23,4 +23,4 @@ module SayWhen #:nodoc:
   end
 end
 
-ActiveRecord::Base.send(:include, SayWhen::Storage::ActiveRecord::Acts) # unless ActiveRecord::Base.include?(SayWhen::Storage::ActiveRecord::Acts)
+ActiveRecord::Base.send(:include, SayWhen::Storage::ActiveRecord::Acts) unless ActiveRecord::Base.include?(SayWhen::Storage::ActiveRecord::Acts)
