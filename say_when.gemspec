@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.authors     = ["Andrew Kuklewicz"]
   s.email       = ["andrew@prx.org"]
   s.homepage    = "http://labs.prx.org"
-  s.summary     = %q{TODO: Write a gem summary}
+  s.summary     = %q{Scheduling system for programmatically defined and stored jobs.}
 
   s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
