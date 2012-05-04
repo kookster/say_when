@@ -1,6 +1,7 @@
 require 'active_record'
 require 'say_when/base_job'
 require 'say_when/storage/active_record/job_execution'
+require 'say_when/storage/active_record/acts'
 
 module SayWhen
   module Storage

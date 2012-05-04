@@ -29,7 +29,7 @@ module SayWhen
     def fired
       self.lock.synchronize {
         fired = Time.now
-        next_fire = self.trigger.next_fire_at(fired)
+        next_fire = self.trigger.next_fire_at(fired) rescue nil
         self.last_fire_at = fired
         self.next_fire_at = next_fire
 

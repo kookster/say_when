@@ -37,5 +37,4 @@ class SayWhenMigration < ActiveRecord::Migration
     drop_table :say_when_job_executions
     drop_table :say_when_jobs
   end
-
 end

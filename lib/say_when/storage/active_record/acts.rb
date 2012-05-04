@@ -9,16 +9,9 @@ module SayWhen #:nodoc:
 
         module ClassMethods
           def acts_as_scheduled
-            include SayWhen::Acts::Scheduled::InstanceMethods
+            include SayWhen::Storage::ActiveRecord::Acts::InstanceMethods
           
-            has_many :triggers, :as=>:scheduled, :class_name=>'SayWhen::Trigger' do
-            
-              def active
-                find(:all, :conditions=>["status != ? && status != ?", SayWhen::Trigger::STATE_ERROR, SayWhen::Trigger::STATE_COMPLETE])
-              end
-
-            end
-          
+            has_many :jobs, :as=>:scheduled, :class_name=>'SayWhen::Storage::ActiveRecord::Job'
           end
         end
     
@@ -29,3 +22,5 @@ module SayWhen #:nodoc:
     end
   end
 end
+
+ActiveRecord::Base.send(:include, SayWhen::Storage::ActiveRecord::Acts) # unless ActiveRecord::Base.include?(SayWhen::Storage::ActiveRecord::Acts)

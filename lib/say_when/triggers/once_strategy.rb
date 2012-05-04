@@ -18,7 +18,7 @@ module SayWhen
         else
           Time.now
         end
-            
+      
       end
 
       def next_fire_at(time=Time.now)

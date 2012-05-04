@@ -13,9 +13,10 @@ module SayWhen
         include SayWhen::Storage::Memory::Base
       	include SayWhen::BaseJob
 
-        has_properties :status, :start_at, :end_at
+        has_properties :group, :name, :status, :start_at, :end_at
         has_properties :trigger_strategy, :trigger_options, :last_fire_at, :next_fire_at
-      	has_properties :job_class, :job_method, :data
+        has_properties :job_class, :job_method, :data
+        has_properties :scheduled
 
         def self.acquire_next(no_later_than)
           self.lock.synchronize {

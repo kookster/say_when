@@ -4,7 +4,6 @@ module SayWhen
     class ActiveMessaging < SayWhen::Processor::Base
       
       include ::ActiveMessaging::MessageSender    
-      publishes_to :say_when
     
       def initialize(scheduler)
         super(scheduler)
