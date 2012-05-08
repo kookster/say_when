@@ -62,20 +62,33 @@ module SayWhen
     end
 
     def execute_job(options={})
-      tm = (self.job_method || 'execute').to_s
-      tc = self.job_class.constantize
-      task = if tc.respond_to?(tm)
-        tc
-      else
-        to = tc.new
-        if to.respond_to?(tm)
-          to
+      task_method = (self.job_method || 'execute').to_s
+      task = get_task(task_method)
+      task.send(task_method, options)
+    end
+
+    def get_task(task_method)
+      task = nil
+
+      if self.job_class
+        tc = self.job_class.constantize
+        if tc.respond_to?(task_method)
+          task = tc
         else
-          raise "Neither #{self.job_class} class nor instance respond to #{tm}"
+          to = tc.new
+          if to.respond_to?(task_method)
+            task = to
+          else
+            raise "Neither '#{self.job_class}' class nor instance respond to '#{task_method}'"
+          end
+        end
+      elsif self.scheduled
+        if self.scheduled.respond_to?(task_method)
+          task = self.scheduled
+        else
+          raise "Scheduled '#{self.scheduled.inspect}' does not respond to '#{task_method}'"
         end
       end
-
-      task.send(tm, options)
     end
 
   end

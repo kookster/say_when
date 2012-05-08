@@ -9,8 +9,9 @@ module SayWhen
         super(scheduler)
       end
 
+      # send the job to the other end, then in the a13g processor, call the execute method
       def process(job)
-        message = {:class=>job.job_method, :method=>job.job_class, :data=>job.data}.to_yaml
+        message = {:job_id=>job.id}.to_yaml
         publish :say_when, message
       end
     end

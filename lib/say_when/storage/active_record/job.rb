@@ -13,8 +13,10 @@ module SayWhen
 
         self.table_name = "say_when_jobs"
 
+
         serialize :trigger_options
         serialize :data
+        belongs_to :scheduled, :polymorphic => true
         has_many  :job_executions, :class_name=>'SayWhen::Storage::ActiveRecord::JobExecution'
 
         def self.acquire_next(no_later_than)

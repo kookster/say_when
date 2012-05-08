@@ -7,7 +7,7 @@ module SayWhen
       end
 
       def process(job)
-        job.execute(trigger)
+        job.execute
       end
     end
 
