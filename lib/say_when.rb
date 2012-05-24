@@ -10,6 +10,10 @@ require 'say_when/processor/active_messaging' if defined?(ActiveMessaging)
 require 'say_when/storage/active_record/job' if defined?(ActiveRecord)
 
 module SayWhen
+
+  def SayWhen.logger=(logger)
+    @@logger = logger
+  end
   
   def SayWhen.logger
     unless defined?(@@logger)

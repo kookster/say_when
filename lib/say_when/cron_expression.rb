@@ -428,11 +428,12 @@ module SayWhen
 
     def next(date)
       next_month = self.values.detect{|v| v > date.month} 
-      if next_month.nil?
+      result = if next_month.nil?
         date.change(:year=>date.year + 1, :month=>self.values.first, :day=>1, :hour=>0)
       else
         date.change(:month=>next_month, :day=>1, :hour=>0)
       end
+      result
     end
 
   end
