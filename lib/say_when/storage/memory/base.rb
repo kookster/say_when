@@ -1,5 +1,5 @@
 module SayWhen
-  module Store
+  module Storage
     module Memory
 
       module Base

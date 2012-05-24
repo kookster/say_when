@@ -1,4 +1,4 @@
-require 'say_when/store/memory/base'
+require 'say_when/storage/memory/base'
 
 module SayWhen
   module Store

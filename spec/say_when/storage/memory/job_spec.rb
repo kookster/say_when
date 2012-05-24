@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + '/../../../spec_helper'
-require File.dirname(__FILE__) + '/../../../../lib/say_when/store/memory/job'
+require File.dirname(__FILE__) + '/../../../../lib/say_when/storage/memory/job'
 
 describe SayWhen::Store::Memory::Job do
 

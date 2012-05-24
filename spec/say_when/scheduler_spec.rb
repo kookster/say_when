@@ -63,21 +63,11 @@ describe SayWhen::Scheduler do
       puts 'started'
       sleep(0.1)
       @scheduler.running.should == true
-      @scheduler.scheduler_thread.should be_alive
-      @scheduler.processor_thread.should be_alive
 
       puts 'stop'
       @scheduler.stop
       puts 'wait for it'
-      wait = 0
-      while(scheduler_thread.alive? && wait < 10)
-        puts 'waiting...'
-        wait += 1
-        sleep(1)
-      end
-      puts 'done'
-      @scheduler.scheduler_thread.should_not be_alive
-      @scheduler.processor_thread.should_not be_alive
+      @scheduler.running.should == false
     end
 
   end
