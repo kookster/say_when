@@ -1,5 +1,5 @@
 module SayWhen
-  class MigrationGenerator < Rails::Generator::Base
+  class MigrationGenerator < Rails::Generators::Base
     def manifest 
       record do |m| 
         m.migration_template 'migration.rb', 'db/migrate' 
