@@ -29,7 +29,7 @@ module SayWhen
     def fired
       self.lock.synchronize {
         fired = Time.now
-        next_fire = self.trigger.next_fire_at(fired) rescue nil
+        next_fire = trigger.next_fire_at(fired) rescue nil
         self.last_fire_at = fired
         self.next_fire_at = next_fire
 
@@ -61,7 +61,7 @@ module SayWhen
       trigger_class.new(trigger_options)
     end
 
-    def execute_job(options={})
+    def execute_job(options)
       task_method = (self.job_method || 'execute').to_s
       task = get_task(task_method)
       task.send(task_method, options)
@@ -89,6 +89,7 @@ module SayWhen
           raise "Scheduled '#{self.scheduled.inspect}' does not respond to '#{task_method}'"
         end
       end
+      task
     end
 
   end

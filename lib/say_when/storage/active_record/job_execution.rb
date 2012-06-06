@@ -9,7 +9,6 @@ module SayWhen
         self.table_name = "say_when_job_executions"
         
         belongs_to :job, :class_name=>'SayWhen::Storage::ActiveRecord::Job'
-        belongs_to :trigger, :class_name=>'SayWhen::Storage::ActiveRecord::Trigger'
 
       end
 

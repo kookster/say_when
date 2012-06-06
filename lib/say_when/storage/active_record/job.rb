@@ -21,21 +21,21 @@ module SayWhen
 
         def self.acquire_next(no_later_than)
          SayWhen::Storage::ActiveRecord::Job.transaction do
-            # select and lock the next trigger that needs executin' (status waiting, and after no_later_than)
-            next_trigger = find(:first,
+            # select and lock the next job that needs executin' (status waiting, and after no_later_than)
+            next_job = find(:first,
                                 :lock       => true,
                                 :order      => 'next_fire_at ASC',
                                 :conditions => ['status = ? and ? >= next_fire_at', 
                                                 STATE_WAITING,
                                                 no_later_than.in_time_zone('UTC')])
 
-            # make sure there is a trigger ready to run
-            return nil if next_trigger.nil?
+            # make sure there is a job ready to run
+            return nil if next_job.nil?
       
             # set status to acquired to take it out of rotation
-            next_trigger.update_attribute(:status, STATE_ACQUIRED)
+            next_job.update_attribute(:status, STATE_ACQUIRED)
       
-            return next_trigger
+            return next_job
           end
         end
 
@@ -60,12 +60,12 @@ module SayWhen
 
 
         # default impl with some error handling and result recording
-        def execute(trigger=nil)
+        def execute
           result = nil
-          execution = SayWhen::Storage::ActiveRecord::JobExecution.create(:job=>self, :status=>'executing', :start_at=>Time.now, :trigger=>trigger)
+          execution = SayWhen::Storage::ActiveRecord::JobExecution.create(:job=>self, :status=>'executing', :start_at=>Time.now)
 
           begin
-            result = self.execute_job((data || {}).merge(:trigger=>trigger))
+            result = self.execute_job(data)
             execution.result = result
             execution.status = 'complete'
           rescue Object=>ex
