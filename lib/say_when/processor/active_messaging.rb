@@ -1,9 +1,11 @@
+require 'activemessaging/message_sender'
+
 module SayWhen
   module Processor
   
     class ActiveMessaging < SayWhen::Processor::Base
       
-      include ::ActiveMessaging::MessageSender    
+      include ::ActiveMessaging::MessageSender
     
       def initialize(scheduler)
         super(scheduler)
