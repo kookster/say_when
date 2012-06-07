@@ -1,4 +1,5 @@
-class SayWhenMigration < ActiveRecord::Migration
+class CreateSayWhenTables < ActiveRecord::Migration
+  
   def self.up
 
     create_table :say_when_jobs, :force => true do |t|
