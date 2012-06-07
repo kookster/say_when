@@ -86,14 +86,17 @@ module SayWhen
               logger.debug "SayWhen:: job fired complete"
 
             end
-          rescue Object=>ex
-            begin
-              job_msg = job && " job:'#{job.inspect}'"
-              logger.error "SayWhen:: Failure to process#{job_msg}: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
-              job.release if job
-            rescue
-              puts ex
-            end
+          rescue Interrupt
+            job_msg = job && " job:'#{job.inspect}'"
+            logger.error "\nSayWhen:: Interrupt! #{job_msg}"
+            exit
+          rescue StandardError=>ex
+            job_msg = job && " job:'#{job.inspect}'"
+            logger.error "SayWhen:: Failure to process#{job_msg}: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
+            job.release if job
+          rescue Exception=>ex
+            logger.error "SayWhen:: Exception in process#{job_msg}: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
+            exit
           end
         end
       end
