@@ -23,11 +23,11 @@ module SayWhen
          SayWhen::Storage::ActiveRecord::Job.transaction do
             # select and lock the next job that needs executin' (status waiting, and after no_later_than)
             next_job = find(:first,
-                                :lock       => true,
-                                :order      => 'next_fire_at ASC',
-                                :conditions => ['status = ? and ? >= next_fire_at', 
-                                                STATE_WAITING,
-                                                no_later_than.in_time_zone('UTC')])
+                            :lock       => true,
+                            :order      => 'next_fire_at ASC',
+                            :conditions => ['status = ? and ? >= next_fire_at', 
+                                            STATE_WAITING,
+                                            no_later_than.in_time_zone('UTC')])
 
             # make sure there is a job ready to run
             return nil if next_job.nil?
@@ -41,10 +41,11 @@ module SayWhen
 
         def before_create
           self.status = STATE_WAITING
-          self.next_fire_at = self.trigger.next_fire_at(Time.now)
+          self.next_fire_at = self.trigger.next_fire_at
         end
 
-        def fired
+
+        def fired(fired_at=Time.now)
           Job.transaction {
             super
             self.save!
@@ -57,7 +58,6 @@ module SayWhen
             self.save!
           }
         end
-
 
         # default impl with some error handling and result recording
         def execute

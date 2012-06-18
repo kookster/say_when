@@ -82,9 +82,8 @@ module SayWhen
               logger.debug "SayWhen:: job processed"
 
               # this should update next fire at, and put back in list of scheduled jobs
-              job.fired
+              job.fired(time_now)
               logger.debug "SayWhen:: job fired complete"
-
             end
           rescue Interrupt
             job_msg = job && " job:'#{job.inspect}'"

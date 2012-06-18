@@ -21,10 +21,10 @@ module SayWhen
       
       end
 
-      def next_fire_at(time=Time.now)
-        nfa = (once_at >= (time - 5.seconds)) ? once_at : nil
+      def next_fire_at(time=nil)
+        nfa = once_at if (!time || (time <= once_at))
         puts "OnceStrategy: next_fire_at: #{nfa}, once_at: #{once_at}, time: #{time}"
-        nfa
+        return nfa
       end
       
     end

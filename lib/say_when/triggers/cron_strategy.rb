@@ -13,8 +13,8 @@ module SayWhen
         @cron_expression = SayWhen::CronExpression.new(options)            
       end
 
-      def next_fire_at(time=Time.now)
-        cron_expression.next_fire_at(time)
+      def next_fire_at(time=nil)
+        cron_expression.next_fire_at(time || Time.now)
       end
 
     end

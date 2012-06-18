@@ -32,8 +32,8 @@ module SayWhen
 
         def initialize(options={})
           super
-          self.status = STATE_WAITING unless self.status          
-          self.next_fire_at = self.trigger.next_fire_at(Time.now)
+          self.status = STATE_WAITING unless self.status
+          self.next_fire_at = trigger.next_fire_at
           self.class.jobs << self
         end
 

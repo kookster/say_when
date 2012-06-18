@@ -26,14 +26,12 @@ module SayWhen
       @trigger ||= load_trigger
     end
 
-    def fired
+    def fired(fired_at=Time.now)
       self.lock.synchronize {
-        fired = Time.now
-        next_fire = trigger.next_fire_at(fired) rescue nil
-        self.last_fire_at = fired
-        self.next_fire_at = next_fire
+        self.last_fire_at = fired_at
+        self.next_fire_at = trigger.next_fire_at(last_fire_at + 1.second) rescue nil
 
-        if next_fire.nil?
+        if next_fire_at.nil?
           self.status = STATE_COMPLETE
         else
           self.status = STATE_WAITING
