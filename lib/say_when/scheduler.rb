@@ -59,10 +59,11 @@ module SayWhen
       logger.info "SayWhen::Scheduler starting"
 
       [$stdout, $stderr].each{|s| s.sync = true; s.flush}
+
       trap("TERM", "EXIT")
-      trap("QUIT") { stop }
 
       begin
+
         self.running = true
 
         logger.info "SayWhen::Scheduler running"
