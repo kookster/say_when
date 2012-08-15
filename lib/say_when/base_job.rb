@@ -48,7 +48,7 @@ module SayWhen
     end
 
     def execute
-      self.execute_job(data)
+      execute_job(data)
     end
 
     def load_trigger
@@ -56,11 +56,11 @@ module SayWhen
       require "say_when/triggers/#{strategy}_strategy"
       trigger_class_name = "SayWhen::Triggers::#{strategy.to_s.camelize}Strategy"
       trigger_class = trigger_class_name.constantize
-      trigger_class.new(trigger_options)
+      trigger_class.new((trigger_options || {}).merge(:job=>self))
     end
 
     def execute_job(options)
-      task_method = (self.job_method || 'execute').to_s
+      task_method = (job_method || 'execute').to_s
       task = get_task(task_method)
       task.send(task_method, options)
     end
@@ -68,8 +68,8 @@ module SayWhen
     def get_task(task_method)
       task = nil
 
-      if self.job_class
-        tc = self.job_class.constantize
+      if job_class
+        tc = job_class.constantize
         if tc.respond_to?(task_method)
           task = tc
         else
@@ -77,14 +77,14 @@ module SayWhen
           if to.respond_to?(task_method)
             task = to
           else
-            raise "Neither '#{self.job_class}' class nor instance respond to '#{task_method}'"
+            raise "Neither '#{job_class}' class nor instance respond to '#{task_method}'"
           end
         end
-      elsif self.scheduled
-        if self.scheduled.respond_to?(task_method)
-          task = self.scheduled
+      elsif scheduled
+        if scheduled.respond_to?(task_method)
+          task = scheduled
         else
-          raise "Scheduled '#{self.scheduled.inspect}' does not respond to '#{task_method}'"
+          raise "Scheduled '#{scheduled.inspect}' does not respond to '#{task_method}'"
         end
       end
       task

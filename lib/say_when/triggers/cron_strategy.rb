@@ -10,6 +10,7 @@ module SayWhen
       attr_accessor :cron_expression
 
       def initialize(options={})
+        super
         @cron_expression = SayWhen::CronExpression.new(options)            
       end
 

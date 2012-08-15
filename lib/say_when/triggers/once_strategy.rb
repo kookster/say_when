@@ -9,16 +9,8 @@ module SayWhen
       attr_accessor :once_at
 
       def initialize(options=nil)
-        options ||= Time.now
-        # if it's a hash, pull out the time
-        @once_at = if options.is_a?(Time) || options.acts_like_time?
-          options
-        elsif options.is_a?(Hash) && options[:at]
-          options[:at]
-        else
-          Time.now
-        end
-      
+        super
+        @once_at = options[:at] || Time.now
       end
 
       def next_fire_at(time=nil)

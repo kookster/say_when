@@ -28,7 +28,7 @@ describe SayWhen::Scheduler do
 
       job = SayWhen::Scheduler.schedule(
         :trigger_strategy => 'once',
-        :trigger_options  => 10.second.since,
+        :trigger_options  => {:at => 10.second.since},
         :job_class        => 'SayWhen::Test::TestTask',
         :job_method       => 'execute'
       )

@@ -17,6 +17,13 @@ module SayWhen #:nodoc:
     
         module InstanceMethods
 
+          def schedule_instance(next_at_method, job={})
+            options = job_options(job)
+            options[:trigger_strategy] = :scheduled
+            options[:trigger_options]  = {:next_at_method => next_at_method}
+            Scheduler.schedule(options)
+          end
+
           def schedule_cron(expression, time_zone, job={})
             options = job_options(job)
             options[:trigger_strategy] = :cron
@@ -27,14 +34,14 @@ module SayWhen #:nodoc:
           def schedule_once(time, job={})
             options = job_options(job)
             options[:trigger_strategy] = :once
-            options[:trigger_options]  = time
+            options[:trigger_options]  = {:at => time}
             Scheduler.schedule(options)
           end
 
           def schedule_in(after, job={})
             options = job_options(job)
             options[:trigger_strategy] = :once
-            options[:trigger_options]  = Time.now + after
+            options[:trigger_options]  = {:at => (Time.now + after)}
             Scheduler.schedule(options)
           end
 
