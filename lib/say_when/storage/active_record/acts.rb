@@ -19,7 +19,7 @@ module SayWhen #:nodoc:
 
           def schedule_instance(next_at_method, job={})
             options = job_options(job)
-            options[:trigger_strategy] = :scheduled
+            options[:trigger_strategy] = :instance
             options[:trigger_options]  = {:next_at_method => next_at_method}
             Scheduler.schedule(options)
           end
