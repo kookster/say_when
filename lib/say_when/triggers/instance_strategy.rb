@@ -11,7 +11,7 @@ module SayWhen
       def initialize(options={})
         super
         @instance       = @job.scheduled
-        @next_at_method  = options[:next_at_method] || 'next_fire_at'
+        @next_at_method = options[:next_at_method] || 'next_fire_at'
       end
 
       def next_fire_at(time=Time.now)
