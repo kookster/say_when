@@ -18,6 +18,7 @@ module SayWhen
         serialize :data
         belongs_to :scheduled, :polymorphic => true
         has_many  :job_executions, :class_name=>'SayWhen::Storage::ActiveRecord::JobExecution'
+        before_create :set_defaults
 
         def self.acquire_next(no_later_than)
          SayWhen::Storage::ActiveRecord::Job.transaction do
@@ -39,11 +40,12 @@ module SayWhen
           end
         end
 
-        def before_create
+        def set_defaults
+          # puts "SayWhen::Storage::ActiveRecord::Job - set_defaults start"
           self.status = STATE_WAITING
           self.next_fire_at = self.trigger.next_fire_at
+          # puts "SayWhen::Storage::ActiveRecord::Job - set_defaults, next_fire_at: #{self.next_fire_at}"
         end
-
 
         def fired(fired_at=Time.now)
           Job.transaction {
