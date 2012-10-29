@@ -21,23 +21,23 @@ module SayWhen
         before_create :set_defaults
 
         def self.acquire_next(no_later_than)
-         SayWhen::Storage::ActiveRecord::Job.transaction do
-            # select and lock the next job that needs executin' (status waiting, and after no_later_than)
-            next_job = find(:first,
-                            :lock       => true,
-                            :order      => 'next_fire_at ASC',
-                            :conditions => ['status = ? and ? >= next_fire_at', 
-                                            STATE_WAITING,
-                                            no_later_than.in_time_zone('UTC')])
+          @next_job = nil
+          hide_logging do
+            SayWhen::Storage::ActiveRecord::Job.transaction do
+              # select and lock the next job that needs executin' (status waiting, and after no_later_than)
+              @next_job = find(:first,
+                              :lock       => true,
+                              :order      => 'next_fire_at ASC',
+                              :conditions => ['status = ? and ? >= next_fire_at', 
+                                              STATE_WAITING,
+                                              no_later_than.in_time_zone('UTC')])
 
-            # make sure there is a job ready to run
-            return nil if next_job.nil?
-      
-            # set status to acquired to take it out of rotation
-            next_job.update_attribute(:status, STATE_ACQUIRED)
-      
-            return next_job
+              # set status to acquired to take it out of rotation
+              @next_job.update_attribute(:status, STATE_ACQUIRED) unless @next_job.nil?
+        
+            end
           end
+          @next_job
         end
 
         def set_defaults
@@ -78,6 +78,21 @@ module SayWhen
           execution.end_at = Time.now
           execution.save!
           result
+        end
+
+        protected
+
+        def self.hide_logging
+          old_logger = nil
+          begin
+            old_logger = ::ActiveRecord::Base.logger
+            ::ActiveRecord::Base.logger = nil
+
+            yield
+
+          ensure
+            ::ActiveRecord::Base.logger = old_logger
+          end
         end
         
       end

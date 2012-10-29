@@ -18,8 +18,11 @@ module SayWhen
   end
   
   def SayWhen.logger
-    unless defined?(@@logger)
-      @@logger = Rails.logger if defined?(Rails.logger) && Rails.logger
+    if !defined?(@@logger) || !@@logger
+      if defined?(Rails.logger) && Rails.logger
+        @@logger = Rails.logger
+      end
+      
       @@logger = Logger.new(STDOUT) unless defined?(@@logger)
     end
     @@logger
