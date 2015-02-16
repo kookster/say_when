@@ -32,7 +32,7 @@ describe SayWhen::Storage::ActiveRecord::Job do
   it 'derives a trigger from the attributes' do
     t = SayWhen::Storage::ActiveRecord::Job.create(valid_attributes)
     t.trigger.wont_be_nil
-    t.trigger.should be_a SayWhen::Triggers::CronStrategy
+    t.trigger.must_be_instance_of SayWhen::Triggers::CronStrategy
   end
 
   it 'has a waiting state on create' do
@@ -73,11 +73,11 @@ describe SayWhen::Storage::ActiveRecord::Job do
     j.last_fire_at = lfa
 
     now = Time.now
-    Time.stub!(:now).and_return(now)
-
-    j.fired
-    j.next_fire_at.must_equal ce.next_fire_at(now)
-    j.last_fire_at.must_equal now
-    j.status.must_equal SayWhen::BaseJob::STATE_WAITING
+    Time.stub(:now, now) do
+      j.fired
+      j.next_fire_at.must_equal ce.next_fire_at(now)
+      j.last_fire_at.must_equal now
+      j.status.must_equal SayWhen::BaseJob::STATE_WAITING
+    end
   end
 end

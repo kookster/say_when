@@ -2,6 +2,10 @@ require 'minitest_helper'
 
 require 'say_when/processor/active_messaging'
 require 'say_when/storage/active_record/job'
+require 'activemessaging'
+
+ActiveMessaging.logger = Logger.new('/dev/null')
+ActiveMessaging.load_extensions
 
 def destination(destination_name)
   d = ActiveMessaging::Gateway.find_destination(destination_name).value
@@ -12,9 +16,7 @@ describe SayWhen::Processor::ActiveMessaging do
 
   before do
 
-    require 'activemessaging'
-
-    ActiveMessaging::Gateway.stub!(:load_connection_configuration).and_return({:adapter=>:test})
+    ActiveMessaging::Gateway.connections['default'] = ActiveMessaging::Gateway.adapters[:test].new({})
 
     ActiveMessaging::Gateway.define do |s|
       s.destination :say_when, '/queue/SayWhen'
@@ -28,8 +30,8 @@ describe SayWhen::Processor::ActiveMessaging do
   end
 
   it 'process a job by sending a message' do
-    @job = mock('SayWhen::Storage::ActiveRecord::Job')
-    @job.should_receive(:id).and_return(100)
+    @job = Minitest::Mock.new
+    @job.expect(:id, 100)
     @processor.process(@job)
     destination(:say_when).messages.size.must_equal 1
     YAML::load(destination(:say_when).messages.first.body)[:job_id].must_equal 100

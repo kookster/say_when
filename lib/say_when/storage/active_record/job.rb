@@ -26,16 +26,12 @@ module SayWhen
           hide_logging do
             SayWhen::Storage::ActiveRecord::Job.transaction do
               # select and lock the next job that needs executin' (status waiting, and after no_later_than)
-              next_job = find(:first,
-                              :lock       => true,
-                              :order      => 'next_fire_at ASC',
-                              :conditions => ['status = ? and ? >= next_fire_at',
-                                              STATE_WAITING,
-                                              no_later_than.in_time_zone('UTC')])
+              next_job = where('status = ? and ? >= next_fire_at', STATE_WAITING, no_later_than.in_time_zone('UTC')).
+                order('next_fire_at ASC').
+                lock(true).first
 
               # set status to acquired to take it out of rotation
               next_job.update_attribute(:status, STATE_ACQUIRED) unless next_job.nil?
-
             end
           end
           next_job

@@ -14,17 +14,17 @@ describe SayWhen::Storage::Memory::Job do
   }
 
   it 'can be instantiated' do
-    j = SayWhen::Storage::Memory::Job.new(@valid_attributes)
+    j = SayWhen::Storage::Memory::Job.new(valid_attributes)
     j.wont_be_nil
   end
 
   it 'can execute the task for the job' do
-    j = SayWhen::Storage::Memory::Job.new(@valid_attributes)
+    j = SayWhen::Storage::Memory::Job.new(valid_attributes)
     j.execute_job({:result=>1}).must_equal 1
   end
 
   it 'can execute the job' do
-    j = SayWhen::Storage::Memory::Job.new(@valid_attributes)
+    j = SayWhen::Storage::Memory::Job.new(valid_attributes)
     j.execute.must_equal 1
   end
 end
