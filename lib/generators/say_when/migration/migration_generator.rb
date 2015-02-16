@@ -10,9 +10,8 @@ module SayWhen
 
     source_root File.expand_path('../templates', __FILE__)
 
-    def manifest 
-      migration_template 'migration.rb', 'db/migrate/create_say_when_tables' 
+    def manifest
+      migration_template 'migration.rb', 'db/migrate/create_say_when_tables'
     end
-    
   end
 end

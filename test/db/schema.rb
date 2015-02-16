@@ -18,7 +18,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.string    :job_method
     t.text      :data
 
-    t.timestamps
+    t.timestamps null: false
   end
 
   create_table :say_when_job_executions, :force => true do |t|
@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.datetime :start_at
     t.datetime :end_at
   end
-  
+
   add_index :say_when_jobs, :status
   add_index :say_when_jobs, :next_fire_at
 

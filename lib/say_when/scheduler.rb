@@ -1,5 +1,4 @@
 module SayWhen
-
   class Scheduler
 
     DEFAULT_PROCESSOR_CLASS  = SayWhen::Processor::Simple
@@ -7,7 +6,7 @@ module SayWhen
 
     @@scheduler = nil
     @@lock = nil
-    
+
     attr_accessor :storage_strategy, :processor_class, :tick_length
 
     attr_accessor :running
@@ -54,7 +53,7 @@ module SayWhen
       end
       @processor
     end
-    
+
     def start
       logger.info "SayWhen::Scheduler starting"
 
@@ -86,22 +85,32 @@ module SayWhen
               job.fired(time_now)
               logger.debug "SayWhen:: job fired complete"
             end
-          rescue Interrupt
-            job_msg = job && " job:'#{job.inspect}'"
-            logger.error "\nSayWhen:: Interrupt! #{job_msg}"
+          rescue StandardError => ex
+            job_msg = job && "job: #{job.inspect} "
+            logger.error "SayWhen:: Failure: #{job_msg}exception: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
+            safe_release(job)
+            sleep(tick_length)
+          rescue Interrupt => ex
+            job_msg = job && "\n - interrupted job: #{job.inspect}\n"
+            logger.error "\nSayWhen:: Interrupt! #{ex.inspect}#{job_msg}"
+            safe_release(job)
             exit
-          rescue StandardError=>ex
-            job_msg = job && " job:'#{job.inspect}'"
-            logger.error "SayWhen:: Failure to process#{job_msg}: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
-            job.release if job
-          rescue Exception=>ex
-            logger.error "SayWhen:: Exception in process#{job_msg}: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
+          rescue Exception => ex
+            job_msg = job && "job: #{job.inspect} "
+            logger.error "SayWhen:: Exception: #{job_msg}exception: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
+            safe_release(job)
             exit
           end
         end
       end
 
       logger.info "SayWhen::Scheduler stopped"
+    end
+
+    def safe_release(job)
+      job.release if job
+    rescue
+      logger "Failed to release job: #{job.inspect}" rescue nil
     end
 
     def stop
@@ -127,6 +136,5 @@ module SayWhen
     def logger
       SayWhen::logger
     end
-
   end
 end
