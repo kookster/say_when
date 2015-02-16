@@ -15,12 +15,12 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_development_dependency "activemessaging", '~> 0.9.0'
-  s.add_development_dependency "activesupport", '~> 2.3.14'
-  s.add_development_dependency "activerecord", '~> 2.3.14'
-  s.add_development_dependency "mongoid", '~> 1.9.5'
-  s.add_development_dependency 'rspec', "~> 1.3"
-  s.add_development_dependency 'sqlite3'
-  s.add_development_dependency 'rake'
+  s.add_runtime_dependency 'activesupport'
 
+  s.add_development_dependency 'activerecord'
+  s.add_development_dependency 'shoryuken'
+  s.add_development_dependency 'activemessaging'
+
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'rake'
 end
