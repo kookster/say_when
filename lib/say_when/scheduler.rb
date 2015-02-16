@@ -7,7 +7,7 @@ module SayWhen
 
     @@scheduler = nil
     @@lock = nil
-    
+
     attr_accessor :storage_strategy, :processor_class, :tick_length
 
     attr_accessor :running
@@ -54,7 +54,7 @@ module SayWhen
       end
       @processor
     end
-    
+
     def start
       logger.info "SayWhen::Scheduler starting"
 
@@ -94,6 +94,7 @@ module SayWhen
             job_msg = job && " job:'#{job.inspect}'"
             logger.error "SayWhen:: Failure to process#{job_msg}: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
             job.release if job
+            sleep(tick_length)
           rescue Exception=>ex
             logger.error "SayWhen:: Exception in process#{job_msg}: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
             exit

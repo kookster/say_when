@@ -1,26 +1,31 @@
 # -*- encoding: utf-8 -*-
-$:.push File.expand_path("../lib", __FILE__)
-require "say_when/version"
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require 'say_when/version'
 
-Gem::Specification.new do |s|
-  s.name        = "say_when"
-  s.version     = SayWhen::VERSION
-  s.authors     = ["Andrew Kuklewicz"]
-  s.email       = ["andrew@prx.org"]
-  s.homepage    = "http://labs.prx.org"
-  s.summary     = %q{Scheduling system for programmatically defined and stored jobs.}
+Gem::Specification.new do |spec|
+  spec.name          = 'say_when'
+  spec.version       = SayWhen::VERSION
+  spec.authors       = ['Andrew Kuklewicz']
+  spec.email         = ['andrew@beginsinwonder.com']
+  spec.summary       = %q{Scheduling system for programmatically defined and stored jobs.}
+  spec.description   = %q{Scheduling system for programmatically defined and stored jobs.}
+  spec.homepage      = 'https://github.com/kookster/say_when'
+  spec.license       = 'MIT'
 
-  s.files         = `git ls-files`.split("\n")
-  s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  s.require_paths = ["lib"]
+  spec.files         = `git ls-files -z`.split("\x0")
+  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
+  spec.require_paths = ['lib']
 
-  s.add_runtime_dependency 'activesupport'
+  spec.add_runtime_dependency('activesupport')
 
-  s.add_development_dependency 'activerecord'
-  s.add_development_dependency 'shoryuken'
-  s.add_development_dependency 'activemessaging'
-
-  s.add_development_dependency 'rspec'
-  s.add_development_dependency 'rake'
+  spec.add_development_dependency('activerecord')
+  spec.add_development_dependency('shoryuken')
+  spec.add_development_dependency('activemessaging')
+  spec.add_development_dependency('bundler', '~> 1.3')
+  spec.add_development_dependency('rake')
+  spec.add_development_dependency('minitest')
+  spec.add_development_dependency('simplecov')
+  spec.add_development_dependency('sqlite3')
 end

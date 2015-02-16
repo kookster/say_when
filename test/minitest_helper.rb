@@ -1,19 +1,18 @@
-ENV['RAILS_ENV']='test'
+$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
+require 'say_when'
 
-require "rubygems"
-require 'bundler/setup'
-require 'active_support'
-
-require 'spec'
-require 'spec/autorun'
-
-$: << (File.dirname(__FILE__) + "/../lib")
-require "say_when"
+require 'minitest'
+require 'minitest/autorun'
+require 'minitest/spec'
+require 'minitest/mock'
+require 'fileutils'
 
 Dir[File.expand_path(File.join(File.dirname(__FILE__),'support','**','*.rb'))].each {|f| require f}
 
-Spec::Runner.configure do |config|
-  config.mock_with :rspec
+require 'active_support'
+require 'active_record'
+if defined?(ActiveRecord)
+  ActiveRecord::Base.logger = Logger.new('/dev/null')
 end
 
 module SayWhen
