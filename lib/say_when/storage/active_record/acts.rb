@@ -41,17 +41,19 @@ module SayWhen #:nodoc:
           def schedule_in(after, job={})
             options = job_options(job)
             options[:trigger_strategy] = 'once'
-            options[:trigger_options]  = {:at => (Time.now + after)}
+            options[:trigger_options]  = { at: (Time.now + after)}
             Scheduler.schedule(options)
           end
 
           # helpers
 
           def job_options(job)
-            { :scheduled        => self,
-              :job_class        => extract_job_class(job),
-              :job_method       => extract_job_method(job),
-              :data             => extract_data(job) }
+            {
+              scheduled:  self,
+              job_class:  extract_job_class(job),
+              job_method: extract_job_method(job),
+              data:       extract_data(job)
+            }
           end
 
           def extract_job_class(job)
@@ -81,9 +83,7 @@ module SayWhen #:nodoc:
               nil
             end
           end
-
         end # InstanceMethods
-
       end
     end
   end
