@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'minitest_helper'
 require 'say_when/storage/memory/job'
 
@@ -7,7 +9,7 @@ describe SayWhen::Storage::Memory::Job do
     {
       :name       => 'Memory::Job::Test',
       :group      => 'Test',
-      :data       => {:foo=>'bar', :result=>1},
+      :data       => { foo: 'bar', result: 1 },
       :job_class  => 'SayWhen::Test::TestTask',
       :job_method => 'execute'
     }
@@ -20,7 +22,7 @@ describe SayWhen::Storage::Memory::Job do
 
   it 'can execute the task for the job' do
     j = SayWhen::Storage::Memory::Job.new(valid_attributes)
-    j.execute_job({:result=>1}).must_equal 1
+    j.execute_job( { result: 1 } ).must_equal 1
   end
 
   it 'can execute the job' do

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 class CreateSayWhenTables < ActiveRecord::Migration
 
   def self.up

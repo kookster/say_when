@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module SayWhen
   class Railtie < Rails::Railtie
     rake_tasks do

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'rails/generators'
 require 'rails/generators/migration'
 require 'rails/generators/active_record'

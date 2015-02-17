@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 namespace :say_when do
   desc 'Start the SayWhen Scheduler'
   task start: :environment do

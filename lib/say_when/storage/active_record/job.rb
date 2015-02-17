@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'active_record'
 require 'say_when/base_job'
 require 'say_when/storage/active_record/job_execution'
@@ -23,10 +25,11 @@ module SayWhen
 
         def self.acquire_next(no_later_than)
           next_job = nil
+
           hide_logging do
             SayWhen::Storage::ActiveRecord::Job.transaction do
               # select and lock the next job that needs executin' (status waiting, and after no_later_than)
-              next_job = where('status = ? and ? >= next_fire_at', STATE_WAITING, no_later_than.in_time_zone('UTC')).
+              next_job = where('status = ? and next_fire_at < ?', STATE_WAITING, no_later_than.in_time_zone('UTC')).
                 order('next_fire_at ASC').
                 lock(true).first
 
