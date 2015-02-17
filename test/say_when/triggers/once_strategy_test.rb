@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'minitest_helper'
 require 'say_when/triggers/once_strategy'
 

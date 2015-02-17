@@ -1,9 +1,11 @@
+# encoding: utf-8
+
 module SayWhen
   module Storage
     module Memory
 
       module Base
-        
+
         attr_accessor :props
 
         def has_properties(*args)

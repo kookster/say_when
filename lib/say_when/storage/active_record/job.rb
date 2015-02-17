@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'active_record'
 require 'say_when/base_job'
 require 'say_when/storage/active_record/job_execution'

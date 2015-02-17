@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 ActiveRecord::Schema.define(:version => 0) do
 
   create_table :say_when_jobs, :force => true do |t|

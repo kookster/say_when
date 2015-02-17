@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'minitest_helper'
 require 'active_record_helper'
 require 'say_when/storage/active_record/job'

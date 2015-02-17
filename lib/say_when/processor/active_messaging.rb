@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'activemessaging/message_sender'
 
 module SayWhen

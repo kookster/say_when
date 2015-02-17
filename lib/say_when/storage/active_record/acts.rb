@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module SayWhen #:nodoc:
   module Storage #:nodoc:
     module ActiveRecord #:nodoc:
