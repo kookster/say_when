@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'say_when/triggers/base'
 
 module SayWhen
@@ -10,14 +12,13 @@ module SayWhen
 
       def initialize(options={})
         super
-        @instance       = @job.scheduled
-        @next_at_method = options[:next_at_method] || 'next_fire_at'
+        self.instance       = job.scheduled
+        self.next_at_method = options[:next_at_method] || 'next_fire_at'
       end
 
       def next_fire_at(time=Time.now)
         instance.send(next_at_method, time)
       end
-
     end
   end
 end
