@@ -10,9 +10,9 @@ require 'say_when/scheduler'
 require 'say_when/processor/active_messaging' if defined?(::ActiveMessaging)
 require 'say_when/processor/shoryuken' if defined?(::Shoryuken)
 require 'say_when/storage/active_record/job' if defined?(::ActiveRecord)
+require 'say_when/railtie' if defined?(Rails)
 
 module SayWhen
-
   def SayWhen.logger=(logger)
     @@logger = logger
   end
@@ -27,5 +27,4 @@ module SayWhen
     end
     @@logger
   end
-
 end
