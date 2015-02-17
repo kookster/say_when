@@ -51,6 +51,7 @@ describe SayWhen::Storage::ActiveRecord::Job do
   end
 
   it 'can find the next job' do
+    SayWhen::Storage::ActiveRecord::Job.delete_all
     j2_opts = {
       trigger_strategy: :cron,
       trigger_options:  { expression: '0 0 10 ? * * *', time_zone: 'Pacific Time (US & Canada)' },
@@ -59,10 +60,14 @@ describe SayWhen::Storage::ActiveRecord::Job do
       job_method:       'execute'
     }
 
-    j1 = SayWhen::Storage::ActiveRecord::Job.create(valid_attributes)
-    j2 = SayWhen::Storage::ActiveRecord::Job.create(j2_opts)
-    next_job = SayWhen::Storage::ActiveRecord::Job.acquire_next(1.day.since)
-    next_job.must_equal j2
+    now = Time.now.change(hour: 0)
+    Time.stub(:now, now) do
+      j1 = SayWhen::Storage::ActiveRecord::Job.create(valid_attributes)
+      j2 = SayWhen::Storage::ActiveRecord::Job.create(j2_opts)
+
+      next_job = SayWhen::Storage::ActiveRecord::Job.acquire_next(2.days.since)
+      next_job.must_equal j2
+    end
   end
 
   it 'can be fired' do
