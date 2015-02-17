@@ -12,10 +12,6 @@ require 'fileutils'
 Dir[File.expand_path(File.join(File.dirname(__FILE__),'support','**','*.rb'))].each {|f| require f}
 
 require 'active_support'
-require 'active_record'
-if defined?(ActiveRecord)
-  ActiveRecord::Base.logger = Logger.new('/dev/null')
-end
 
 module SayWhen
   module Test
