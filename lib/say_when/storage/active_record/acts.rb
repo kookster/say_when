@@ -3,38 +3,36 @@ module SayWhen #:nodoc:
     module ActiveRecord #:nodoc:
       module Acts #:nodoc:
 
-        def self.included(base) # :nodoc:
-          base.extend ClassMethods
-        end
+        extend ActiveSupport::Concern
 
         module ClassMethods
           def acts_as_scheduled
             include SayWhen::Storage::ActiveRecord::Acts::InstanceMethods
-          
-            has_many :scheduled_jobs, :as=>:scheduled, :class_name=>'SayWhen::Storage::ActiveRecord::Job', :dependent => :destroy
+
+            has_many :scheduled_jobs, as: :scheduled, class_name: 'SayWhen::Storage::ActiveRecord::Job', dependent: :destroy
           end
         end
-    
+
         module InstanceMethods
 
           def schedule_instance(next_at_method, job={})
             options = job_options(job)
             options[:trigger_strategy] = 'instance'
-            options[:trigger_options]  = {:next_at_method => next_at_method}
+            options[:trigger_options]  = { next_at_method: next_at_method }
             Scheduler.schedule(options)
           end
 
           def schedule_cron(expression, time_zone, job={})
             options = job_options(job)
             options[:trigger_strategy] = 'cron'
-            options[:trigger_options]  = {:expression => expression, :time_zone => time_zone}
+            options[:trigger_options]  = { expression: expression, time_zone: time_zone }
             Scheduler.schedule(options)
           end
 
           def schedule_once(time, job={})
             options = job_options(job)
             options[:trigger_strategy] = 'once'
-            options[:trigger_options]  = {:at => time}
+            options[:trigger_options]  = { at: time}
             Scheduler.schedule(options)
           end
 
@@ -83,7 +81,7 @@ module SayWhen #:nodoc:
           end
 
         end # InstanceMethods
-      
+
       end
     end
   end
