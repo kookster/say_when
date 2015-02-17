@@ -7,7 +7,7 @@ module SayWhen
     DEFAULT_STORAGE_STRATEGY = :memory
 
     @@scheduler = nil
-    @@lock = nil
+    @@lock = Mutex.new
 
     attr_accessor :storage_strategy, :processor_class, :tick_length
 
@@ -15,37 +15,28 @@ module SayWhen
 
     # support for a singleton scheduler, but you are not restricted to this
     class << self
-
       def scheduler
-        self.lock.synchronize {
-          if @@scheduler.nil?
-            @@scheduler = self.new
-          end
-        }
+        return @@scheduler if @@scheduler
+        @@lock.synchronize { @@scheduler = self.new if @@scheduler.nil? }
         @@scheduler
       end
 
       def configure
-        yield self.scheduler
-        self.scheduler
-      end
-
-      def lock
-        @@lock ||= Mutex.new
+        yield scheduler
+        scheduler
       end
 
       def schedule(job)
-        self.scheduler.schedule(job)
+        scheduler.schedule(job)
       end
 
       def start
-        self.scheduler.start
+        scheduler.start
       end
-
     end
 
     def initialize
-      self.tick_length = 1
+      self.tick_length = [ENV['SAY_WHEN_TICK_LENGTH'].to_i, 5].max
     end
 
     def processor
