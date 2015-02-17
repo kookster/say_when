@@ -13,4 +13,4 @@
 *.gem
 *.DS_Store
 .ruby-version
-test/db/test.db.bak
+test/db/test.db
