@@ -29,7 +29,7 @@ module SayWhen
           time_now = Time.now
           @job = acquire(time_now)
         end
-      rescue Error => ex
+      rescue Exception => ex
         error = "#{ex.class.name}: #{ex.message}\n\t#{ex.backtrace.join("\n\t")}"
         logger.error "SayWhen:: error processing job: #{job.inspect}\n#{error}"
         release(job)
