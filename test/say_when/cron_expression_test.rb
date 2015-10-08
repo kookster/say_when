@@ -1,6 +1,8 @@
 # encoding: utf-8
+require 'minitest_helper'
 
-require File.dirname(__FILE__) + '/../spec_helper'
+require 'active_support/all'
+require 'say_when/cron_expression'
 
 describe SayWhen::CronExpression do
 
@@ -69,6 +71,5 @@ describe SayWhen::CronExpression do
       nfa = @ce.next_fire_at(nfa + 1.second)
       nfa.must_equal Time.parse('2007-11-25 12:00:00 -0800')
     end
-
   end
 end

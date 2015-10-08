@@ -10,7 +10,7 @@ module SayWhen
     attr_reader :expression
     attr_accessor :time_zone, :seconds, :minutes, :hours, :days_of_month, :months, :days_of_week, :years
 
-    def initialize(expression, time_zone=nil)
+    def initialize(expression, time_zone = nil)
       if expression.is_a?(Hash)
         opts = expression
 
@@ -31,13 +31,13 @@ module SayWhen
         self.time_zone = if opts.has_key?(:time_zone) && !opts[:time_zone].blank?
           opts[:time_zone]
         else
-          Time.zone.nil? ? "UTC" : Time.zone.name
+          Time.zone.nil? ? 'UTC' : Time.zone.name
         end
 
       else
         @expression = expression
         self.time_zone = if time_zone.blank?
-            Time.zone.nil? ? "UTC" : Time.zone.name
+            Time.zone.nil? ? 'UTC' : Time.zone.name
           else
             time_zone
           end

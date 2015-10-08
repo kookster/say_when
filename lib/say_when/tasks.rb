@@ -4,6 +4,8 @@ namespace :say_when do
   desc 'Start the SayWhen Scheduler'
   task start: :environment do
     require 'say_when'
-    SayWhen::Scheduler.start
+    require 'say_when/poller/simple_poller'
+
+    SayWhen::Poller::SimplePoller.start
   end
 end

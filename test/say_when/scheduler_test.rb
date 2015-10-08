@@ -4,72 +4,56 @@ require 'minitest_helper'
 
 describe SayWhen::Scheduler do
 
-  before {
-    SayWhen::logger = Logger.new('/dev/null')
-  }
+  let (:scheduler) { SayWhen::Scheduler.new }
 
-  describe 'class methods' do
-
-    it 'can return singleton' do
-      s = SayWhen::Scheduler.scheduler
-      s.wont_be_nil
-      s.must_equal SayWhen::Scheduler.scheduler
-    end
-
-    it 'can be configured' do
-      SayWhen::Scheduler.configure do |scheduler|
-        scheduler.storage_strategy = :memory
-        scheduler.processor_class  = SayWhen::Test::TestProcessor
-      end
-      SayWhen::Scheduler.scheduler.storage_strategy.must_equal :memory
-      SayWhen::Scheduler.scheduler.processor_class.must_equal SayWhen::Test::TestProcessor
-    end
-
-    it 'can schedule a new job' do
-      SayWhen::Scheduler.configure do |scheduler|
-        scheduler.storage_strategy = :memory
-        scheduler.processor_class  = SayWhen::Test::TestProcessor
-      end
-
-      job = SayWhen::Scheduler.schedule(
-        trigger_strategy: 'once',
-        trigger_options: { at: 10.second.since },
-        job_class: 'SayWhen::Test::TestTask',
-        job_method: 'execute'
-      )
-      job.wont_be_nil
-    end
-
+  it 'has a logger' do
+    scheduler.logger.must_be_instance_of Logger
   end
 
-  describe 'instance methods' do
+  it 'extracts data' do
+    scheduler.extract_data({}).must_be_nil
+    scheduler.extract_data(data: 'data').must_equal 'data'
+  end
 
-    before(:all) do
-      SayWhen::Scheduler.configure do |scheduler|
-        scheduler.storage_strategy = :memory
-        scheduler.processor_class  = SayWhen::Test::TestProcessor
-      end
-    end
+  it 'extracts job method' do
+    scheduler.extract_job_method({}).must_equal 'execute'
+    scheduler.extract_job_method(job_method: 'just_doit').must_equal 'just_doit'
+    scheduler.extract_job_method(method: 'doit').must_equal 'doit'
+  end
 
-    let (:scheduler) { SayWhen::Scheduler.scheduler }
+  it 'extracts job class' do
+    scheduler.extract_job_class(job_class: 'foo').must_equal 'foo'
+    scheduler.extract_job_class(class: 'foo').must_equal 'foo'
+    scheduler.extract_job_class(SayWhen::Test::TestTask).must_equal 'SayWhen::Test::TestTask'
+    scheduler.extract_job_class('SayWhen::Test::TestTask').must_equal 'SayWhen::Test::TestTask'
 
-    it 'should instantiate the processor from its class' do
-      scheduler.processor.must_be_instance_of(SayWhen::Test::TestProcessor)
-    end
+    lambda do
+      scheduler.extract_job_class(bar: 'foo')
+    end.must_raise RuntimeError
+  end
 
-    it 'should get the job class based on the strategy' do
-      scheduler.job_class.must_equal SayWhen::Storage::Memory::Job
-    end
+  it 'gets job options' do
+    keys = [:job_class, :job_method, :data]
+    opts = scheduler.job_options(keys.inject({}) { |s, k| s[k] = k.to_s; s } )
+    keys.each{|k| opts[k].must_equal k.to_s }
+  end
 
-    it 'should start the scheduler running, and can stop it' do
-      scheduler.wont_be :running
+  it 'can schedule a new job' do
+    job = scheduler.schedule(
+      trigger_strategy: 'once',
+      trigger_options: { at: 10.second.since },
+      job_class: 'SayWhen::Test::TestTask',
+      job_method: 'execute'
+    )
+    job.wont_be_nil
+  end
 
-      scheduler_thread = Thread.start{ scheduler.start }
-      sleep(0.2)
-      scheduler.must_be :running
+  it 'can schedule a cron job' do
+    job = scheduler.schedule_cron("0 0 12 ? * * *", SayWhen::Test::TestTask)
+    job.wont_be_nil
+  end
 
-      scheduler.stop
-      scheduler.wont_be :running
-    end
+  it 'should provide the storage strategy' do
+    scheduler.storage.must_equal SayWhen::Storage::MemoryStrategy
   end
 end
