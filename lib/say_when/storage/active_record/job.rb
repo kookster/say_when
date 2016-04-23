@@ -8,17 +8,22 @@ module SayWhen
     module ActiveRecord
 
       class Job  < ::ActiveRecord::Base
-
         include SayWhen::BaseJob
-
         self.table_name = "say_when_jobs"
-
-
         serialize :trigger_options
         serialize :data
         belongs_to :scheduled, :polymorphic => true
         has_many  :job_executions, :class_name=>'SayWhen::Storage::ActiveRecord::JobExecution'
         before_create :set_defaults
+
+        def self.reset_acquired(older_than_seconds)
+          return unless older_than_seconds.to_i > 0
+          older_than = (Time.now - older_than_seconds.to_i)
+          update_all(
+            "status = '#{STATE_WAITING}'",
+            ["status = ? and updated_at < ?", STATE_ACQUIRED, older_than]
+          )
+        end
 
         def self.acquire_next(no_later_than)
           @next_job = nil
@@ -28,13 +33,13 @@ module SayWhen
               @next_job = find(:first,
                               :lock       => true,
                               :order      => 'next_fire_at ASC',
-                              :conditions => ['status = ? and ? >= next_fire_at', 
+                              :conditions => ['status = ? and ? >= next_fire_at',
                                               STATE_WAITING,
                                               no_later_than.in_time_zone('UTC')])
 
               # set status to acquired to take it out of rotation
               @next_job.update_attribute(:status, STATE_ACQUIRED) unless @next_job.nil?
-        
+
             end
           end
           @next_job
@@ -94,9 +99,9 @@ module SayWhen
             ::ActiveRecord::Base.logger = old_logger
           end
         end
-        
+
       end
-    
+
     end
   end
 end
