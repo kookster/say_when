@@ -8,7 +8,7 @@ module SayWhen
     @@scheduler = nil
     @@lock = nil
 
-    attr_accessor :storage_strategy, :processor_class, :tick_length
+    attr_accessor :storage_strategy, :processor_class, :tick_length, :reset_acquired_length
 
     attr_accessor :running
 
@@ -40,11 +40,11 @@ module SayWhen
       def start
         self.scheduler.start
       end
-
     end
 
     def initialize
       self.tick_length = 1
+      self.reset_acquired_length = 3600
     end
 
     def processor
@@ -68,9 +68,17 @@ module SayWhen
 
         logger.info "SayWhen::Scheduler running"
         job = nil
+        reset_next_at = Time.now
         while running
           begin
             time_now = Time.now
+
+            if reset_acquired_length > 0 && reset_next_at <= time_now
+              reset_next_at = time_now + reset_acquired_length
+              logger.debug "SayWhen::Scheduler reset_acquired at #{time_now}, try again at #{reset_next_at}"
+              job_class.reset_acquired(reset_acquired_length)
+            end
+
             logger.debug "SayWhen:: Looking for job that should be ready to fire before #{time_now}"
             job = job_class.acquire_next(time_now)
             if job.nil?
