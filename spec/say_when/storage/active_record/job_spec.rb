@@ -61,6 +61,8 @@ describe SayWhen::Storage::ActiveRecord::Job do
   end
 
   it "can find the next job" do
+    SayWhen::Storage::ActiveRecord::Job.delete_all
+
     j2_opts = {
       :trigger_strategy => :cron,
       :trigger_options  => {:expression => '0 0 10 ? * * *', :time_zone  => 'Pacific Time (US & Canada)'},
