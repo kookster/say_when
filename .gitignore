@@ -3,4 +3,5 @@
 Gemfile.lock
 pkg/*
 *.DS_Store
-.rvmrc
+spec/db/test.db
+.ruby-version

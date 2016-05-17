@@ -5,6 +5,8 @@ require File.dirname(__FILE__) + '/../../../../lib/say_when/storage/active_recor
 describe SayWhen::Storage::ActiveRecord::Job do
 
   before(:each) do
+    SayWhen::Storage::ActiveRecord::Job.delete_all
+
     @valid_attributes = {
       :trigger_strategy => :cron,
       :trigger_options  => {:expression => '0 0 12 ? * * *', :time_zone  => 'Pacific Time (US & Canada)'},
@@ -46,6 +48,18 @@ describe SayWhen::Storage::ActiveRecord::Job do
     j = SayWhen::Storage::ActiveRecord::Job.create(@valid_attributes)
     j.status.should == SayWhen::BaseJob::STATE_WAITING
     j.next_fire_at.should == ce.next_fire_at
+  end
+
+  it "resets acquired jobs" do
+    old = 2.hours.ago
+    j = SayWhen::Storage::ActiveRecord::Job.create!(@valid_attributes.merge({
+      :status => 'acquired', :updated_at => old, :created_at => old
+    }))
+
+    SayWhen::Storage::ActiveRecord::Job.reset_acquired(3600)
+
+    j.reload
+    j.status.should == 'waiting'
   end
 
   it "can find the next job" do
