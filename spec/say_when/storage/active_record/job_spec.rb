@@ -5,6 +5,8 @@ require File.dirname(__FILE__) + '/../../../../lib/say_when/storage/active_recor
 describe SayWhen::Storage::ActiveRecord::Job do
 
   before(:each) do
+    SayWhen::Storage::ActiveRecord::Job.delete_all
+
     @valid_attributes = {
       :trigger_strategy => :cron,
       :trigger_options  => {:expression => '0 0 12 ? * * *', :time_zone  => 'Pacific Time (US & Canada)'},
@@ -61,8 +63,6 @@ describe SayWhen::Storage::ActiveRecord::Job do
   end
 
   it "can find the next job" do
-    SayWhen::Storage::ActiveRecord::Job.delete_all
-
     j2_opts = {
       :trigger_strategy => :cron,
       :trigger_options  => {:expression => '0 0 10 ? * * *', :time_zone  => 'Pacific Time (US & Canada)'},
