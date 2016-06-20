@@ -31,7 +31,6 @@ Or install it yourself as:
 
     $ gem install say_when
 
-<<<<<<< HEAD
 ## Configuration
 
 To use, first configure how jobs are stored and processed.
@@ -48,10 +47,12 @@ The processor options are:
 
 You also have some options for running SayWhen:
 - SimplePoller - just a simple looping process, can be started with rake
-- CelluloidPoller - defines a Celluloid Actor appropriate for adding to a running Celluloid process, such as from Shoryuken or Sidekiq
+- CelluloidPoller - defines a Celluloid Actor appropriate for adding to a running Celluloid process, such as from Shoryuken
 
 Finally, there are options for triggers that determine when jobs run:
--
+- Cron expression
+- Once
+- Instance
 
 ```ruby
 # config/intializers/say_when.rb
@@ -90,8 +91,7 @@ There are also convenience methods on the `Scheduler`:
 ```ruby
 
 ```
-
-## `ActiveRecord` Integration
+## ActiveRecord integration
 
 Besides storing jobs in ActiveRecord, you can also associate jobs with other models.
 
@@ -102,33 +102,15 @@ For example, you might create a job to send a reminder a week after a user is cr
 By associating it with the `ActiveRecord` object, you can more easily manage this reminder, such as canceling it if they close their account.
 
 When using `ActiveRecord` integration in Rails, there is a generator for the migration to create the tables for saving scheduled jobs:
-=======
-## ActiveRecord integration
-
-Besides storing jobs in ActiveRecord, you can also associate jobs with other models.
-
-There is an `acts_as_scheduled` method you can call in an ActiveRecord class for this purpose.
-It both makes it easier to schedule a job, and to see manage the list of related jobs.
-
-For example, you might create a job to send a reminder a week after a user is created, and relate this new job to that user.
-By associating it with the AR object, you can more easily manage this reminder, such as cancelling it if they close their account.
-
-When using AR integration in Rails, there is a generator for the migration to create the tables for saving scheduled jobs:
->>>>>>> 37285157ab728c0f38702a975fb43d9f7a0f71d2
 ```
 bundle exec rails generate say_when:migration
 ```
 
-<<<<<<< HEAD
 The resulting migration assumes the scheduled jobs will use a integer based id column, please update the default migration if this is not the case in your system:
-=======
-The resulting migration assumes the scheduled jobs will use a integer based id column, please updatethe default migration if this is not the case in your system:
->>>>>>> 37285157ab728c0f38702a975fb43d9f7a0f71d2
 ```ruby
 # change this to string or other type as needed
 t.integer   :scheduled_id
 ```
-<<<<<<< HEAD
 
 ## Pollers
 
@@ -149,7 +131,7 @@ SayWhen::Poller::SimplePoller.start
 
 For my own purposes, I use things like `daemontools` and `god` to daemonize, so this has been enough for me, but it would not be hard to write a command line script for it.
 
-The reality is that most of the time I am also running a job processing process, either `shoryuken` or `sidekiq`, and I would prefer to piggyback on that same process instead of starting up another. Since both of those use Celluloid, I also created a Celluloid actor class that can be added to the celluloid based job process via hooks in their startup.
+Most of the time I am also running a job processor, either `shoryuken` or `sidekiq`, and I would prefer to piggyback on that same process instead of starting up another. Since both of those use Celluloid (or did, Sidekiq no longer does), I also created a Celluloid actor class that can be added to the celluloid based job process via hooks in their startup.
 
 For Shoryuken, add this to your initializer (probably `config/initializers/shoryuken.rb`):
 ```ruby
