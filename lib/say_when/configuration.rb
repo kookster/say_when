@@ -3,20 +3,13 @@ require 'erb'
 
 module SayWhen
   class Configuration
-    attr_reader :options
-
-    def self.configure(options = {})
-      opts = new(options).configure
-      SayWhen.options.merge!(opts)
-    end
-
     def self.default_options
       {}.tap do |defaults|
-        if defined?(::ActiveJob)
-          defaults[:processor_strategy] = :active_job
-        else
+        # if defined?(::ActiveJob)
+        #   defaults[:processor_strategy] = :active_job
+        # else
           defaults[:processor_strategy] = :simple
-        end
+        # end
 
         if defined?(::ActiveRecord)
           defaults[:storage_strategy] = :active_record

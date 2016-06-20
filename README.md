@@ -62,9 +62,10 @@ require 'say_when'
 SayWhen.logger = Rails.logger
 
 # configure the scheduler for how to store and process scheduled jobs
-SayWhen::Scheduler.configure do |scheduler|
-  scheduler.storage_strategy = :active_record
-  scheduler.processor_class  = SayWhen::Processor::Simple
+# it will default to a :memory strategy and :simple processor
+SayWhen.configure do |options|
+  options[:storage_strategy]   = :active_record
+  options[:processor_strategy] = :simple
 end
 ```
 
@@ -85,7 +86,10 @@ Here is an example of the verbose way of scheduling a job, which is a good place
   )
 ```
 
-When using the
+There are also convenience methods on the `Scheduler`:
+```ruby
+
+```
 
 ## `ActiveRecord` Integration
 

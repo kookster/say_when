@@ -108,7 +108,7 @@ module SayWhen
             result = self.execute_job(data)
             execution.result = result
             execution.status = 'complete'
-          rescue Object=>ex
+          rescue Object => ex
             execution.result = "#{ex.class.name}: #{ex.message}\n\t#{ex.backtrace.join("\n\t")}"
             execution.status = 'error'
           end
@@ -125,7 +125,7 @@ module SayWhen
 
         module ClassMethods
           def acts_as_scheduled
-            include SayWhen::Storage::ActiveRecord::Acts::InstanceMethods
+            include SayWhen::Storage::ActiveRecordStrategy::Acts::InstanceMethods
 
             has_many :scheduled_jobs, as: :scheduled, class_name: 'SayWhen::Storage::ActiveRecordStrategy::Job', dependent: :destroy
           end
@@ -133,80 +133,43 @@ module SayWhen
 
         module InstanceMethods
 
+          def schedule(job)
+            Scheduler.schedule(set_scheduled(job))
+          end
+
           def schedule_instance(next_at_method = 'next_fire_at', job = {})
-            options = job_options(job)
-            options[:trigger_strategy] = 'instance'
-            options[:trigger_options]  = { next_at_method: next_at_method }
-            Scheduler.schedule(options)
+            Scheduler.schedule_instance(next_at_method, set_scheduled(job))
           end
 
           def schedule_cron(expression, job = {})
-            time_zone = if job.is_a?(Hash)
-              job.delete(:time_zone)
-            end || 'UTC'
-            options = job_options(job)
-            options[:trigger_strategy] = 'cron'
-            options[:trigger_options]  = { expression: expression, time_zone: time_zone }
-            Scheduler.schedule(options)
+            Scheduler.schedule_cron(expression, set_scheduled(job))
           end
 
           def schedule_once(time, job = {})
-            options = job_options(job)
-            options[:trigger_strategy] = 'once'
-            options[:trigger_options]  = { at: time}
-            Scheduler.schedule(options)
+            Scheduler.schedule_once(time, set_scheduled(job))
           end
 
           def schedule_in(after, job = {})
-            options = job_options(job)
-            options[:trigger_strategy] = 'once'
-            options[:trigger_options]  = { at: (Time.now + after)}
-            Scheduler.schedule(options)
+            Scheduler.schedule_in(after, set_scheduled(job))
           end
 
-          # helpers
-
-          def job_options(job)
-            {
-              scheduled:  self,
-              job_class:  extract_job_class(job),
-              job_method: extract_job_method(job),
-              data:       extract_data(job)
-            }
-          end
-
-          def extract_job_class(job)
+          def set_scheduled(job)
             if job.is_a?(Hash)
-              job[:class]
-            elsif job.is_a?(Class)
-              job.name
-            elsif job.is_a?(String)
-              job
-            else
-              raise "Could not identify job class from: #{job}"
+              job[:scheduled] = self
+            elsif job.respond_to?(:scheduled)
+              job.scheduled = self
             end
+            job
           end
 
-          def extract_job_method(job)
-            if job.is_a?(Hash)
-              job[:method]
-            else
-              'execute'
-            end
-          end
-
-          def extract_data(job)
-            if job.is_a?(Hash)
-              job[:data]
-            else
-              nil
-            end
-          end
         end # InstanceMethods
-      end
+      end # class << self
 
     end
   end
 end
 
-ActiveRecord::Base.send(:include, SayWhen::Storage::ActiveRecordStrategy::Acts) unless ActiveRecord::Base.include?(SayWhen::Storage::ActiveRecordStrategy::Acts)
+aas = SayWhen::Storage::ActiveRecordStrategy::Acts
+unless ActiveRecord::Base.include?(aas)
+  ActiveRecord::Base.send(:include, aas)
+end

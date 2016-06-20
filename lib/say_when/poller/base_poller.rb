@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 require 'say_when/utils'
-require 'celluloid'
 
 module SayWhen
   module Poller
@@ -11,31 +10,74 @@ module SayWhen
         mod.include(SayWhen::Utils)
       end
 
-      def process(time_now, job)
-        # delegate processing the trigger to the processor
-        processor.process(job)
-        logger.debug "SayWhen:: job processed: #{job.inspect}"
-
-        # this should update next fire at, and put back in list of scheduled jobs
-        storage.fired(time_now)
-        logger.debug "SayWhen:: job fired: #{job.inspect}"
+      def stop
       end
 
-      def acquire(time_now)
+      def start
+      end
+
+      def reset_acquired
+      end
+
+      def job_error(msg, job, ex)
+        job_msg = job && " job:'#{job.inspect}'"
+        logger.error "#{self.class.name} #{msg}#{job_msg}: #{ex.message}\n\t#{ex.backtrace.join("\t\n")}"
+        release(job)
+      end
+
+      def process_jobs
+        while time_now = Time.now && job = acquire(time_now)
+          process(time_now, job)
+        end
+      rescue Interrupt => ex
+        job_error("Interrupt!", job, ex)
+        raise ex
+      rescue Exception => ex
+        job_error("Exception!", job, ex)
+        raise ex
+      end
+
+      def acquire(time_now = Time.now)
         logger.debug "SayWhen:: Looking for job that should be ready to fire before #{time_now}"
-        if job = storage.acquire_next(time_now)
+        if job = self.storage.acquire_next(time_now)
           logger.debug "SayWhen:: got a job: #{job.inspect}"
         else
           logger.debug "SayWhen:: no jobs to acquire"
         end
         job
+      rescue StandardError => ex
+        job_error("Failure to acquire job", job, ex)
+        raise ex
+      end
+
+      def process(job = nil, time_now = Time.now)
+        # delegate processing the trigger to the processor
+        processor.process(job)
+        logger.debug "SayWhen:: job processed: #{job.inspect}"
+
+        # this should update next fire at, and put back in list of scheduled jobs
+        storage.fired(job, time_now)
+        logger.debug "SayWhen:: job fired: #{job.inspect}"
       end
 
       def release(job)
         logger.info "SayWhen::Scheduler release: #{job.inspect}"
         job.release if job
-      rescue
+      rescue StandardError => ex
         logger "Failed to release job: #{job.inspect}" rescue nil
+        raise ex
+      end
+
+      def tick(t = tick_length)
+        sleep(t.to_f)
+      end
+
+      def tick_length
+        @tick_length ||= SayWhen.options[:tick_length].to_f
+      end
+
+      def error_tick_length
+        @error_tick_length ||= SayWhen.options[:error_tick_length].to_f
       end
 
       def processor

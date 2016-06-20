@@ -48,12 +48,26 @@ module SayWhen
             @props ||= []
           end
 
+          def reset_acquired(older_than_seconds)
+            return unless older_than_seconds.to_i > 0
+            older_than = (Time.now - older_than_seconds.to_i)
+            acquire_lock.synchronize {
+              jobs.select do |j|
+                j.status == SayWhen::Storage::BaseJob::STATE_ACQUIRED && j.updated_at < older_than
+              end.each{ |j| j.status = SayWhen::Storage::BaseJob::STATE_WAITING }
+            }
+          end
+
           def acquire_next(no_later_than)
             acquire_lock.synchronize {
               next_job = jobs.detect(nil) do |j|
-                (j.status == STATE_WAITING) && (j.next_fire_at.to_i <= no_later_than.to_i)
+                (j.status == SayWhen::Storage::BaseJob::STATE_WAITING) &&
+                (j.next_fire_at.to_i <= no_later_than.to_i)
               end
-              next_job.status = STATE_ACQUIRED if next_job
+              if next_job
+                next_job.status = SayWhen::Storage::BaseJob::STATE_ACQUIRED
+                next_job.updated_at = Time.now
+              end
               next_job
             }
           end
@@ -74,7 +88,7 @@ module SayWhen
 
         has_properties :group, :name, :status, :start_at, :end_at
         has_properties :trigger_strategy, :trigger_options, :last_fire_at, :next_fire_at
-        has_properties :job_class, :job_method, :data
+        has_properties :job_class, :job_method, :data, :updated_at, :scheduled
 
         def initialize(options={})
           options.each do |k,v|
@@ -83,6 +97,7 @@ module SayWhen
             end
           end
 
+          self.updated_at = Time.now
           self.status = STATE_WAITING unless self.status
           self.next_fire_at = trigger.next_fire_at
         end
@@ -100,8 +115,14 @@ module SayWhen
           self.next_fire_at.to_i <=> job.next_fire_at.to_i
         end
 
-        def scheduled
-          nil
+        def fired(fired_at=Time.now)
+          super
+          self.updated_at = Time.now
+        end
+
+        def release
+          super
+          self.updated_at = Time.now
         end
       end
     end

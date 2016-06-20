@@ -6,9 +6,74 @@ require 'say_when/cron_expression'
 
 describe SayWhen::CronExpression do
 
+  it 'should create with defaults' do
+    ce = SayWhen::CronExpression.new
+    ce.expression.must_equal "* * * ? * ? *"
+    ce.time_zone.must_equal Time.zone.try(:name) || "UTC"
+  end
+
   it 'should set the time_zone' do
-    @ce = SayWhen::CronExpression.new("0 0 12 ? * 1#1 *", 'Pacific Time (US & Canada)')
-    @ce.time_zone.must_equal 'Pacific Time (US & Canada)'
+    ce = SayWhen::CronExpression.new("0 0 12 ? * 1#1 *", 'Pacific Time (US & Canada)')
+    ce.time_zone.must_equal 'Pacific Time (US & Canada)'
+  end
+
+  it 'has a pretty to_s' do
+    ce = SayWhen::CronExpression.new("1 1 1 1 1 ? 2000")
+    ce.to_s.must_match /s:.*/
+  end
+
+  it 'handles #/# numbers' do
+    ce = SayWhen::CronExpression.new("*/10 1 1 1 1 ? 2000")
+    ce.seconds.values.must_equal [0, 10, 20, 30, 40, 50]
+  end
+
+  it 'handles #,# numbers' do
+    ce = SayWhen::CronExpression.new("1,2 1 1 1 1 ? 2000")
+    ce.seconds.values.must_equal [1, 2]
+  end
+
+  it 'handles #-# numbers' do
+    ce = SayWhen::CronExpression.new("1-3 1 1 1 1 ? 2000")
+    ce.seconds.values.must_equal [1, 2, 3]
+  end
+
+  it 'no values when no match' do
+    ce = SayWhen::CronExpression.new("na 1 1 1 1 ? 2000")
+    ce.seconds.values.must_equal []
+  end
+
+  it 'handles changes in seconds' do
+    ce = SayWhen::CronExpression.new("1-3 1 1 1 1 ? 2000", "UTC")
+    n = ce.next_fire_at(Time.utc(1999,1,1))
+    n.must_equal Time.parse("Sat, 01 Jan 2000 01:01:01 UTC")
+
+    n = ce.next_fire_at(Time.parse("Sat, 01 Jan 2000 01:00:59 UTC"))
+    n.must_equal Time.parse("Sat, 01 Jan 2000 01:01:01 UTC")
+  end
+
+  describe "Day of the month" do
+    it "gets the last day of the month" do
+      ce = SayWhen::CronExpression.new("0 0 0 L 1 ? 2004", 'UTC')
+      ce.next_fire_at(Time.utc(1999,1,1)).must_equal Time.parse('Sat, 31 Jan 2004 00:00:00 UTC +00:00')
+    end
+
+    it "gets the last weekday of the month" do
+      ce = SayWhen::CronExpression.new("0 0 0 LW 1 ? 2004", 'UTC')
+      ce.next_fire_at(Time.utc(1999,1,1)).must_equal Time.parse('Fri, 30 Jan 2004 00:00:00 UTC +00:00')
+    end
+
+    it "gets a weekday in the month" do
+      ce = SayWhen::CronExpression.new("0 0 0 W 1 ? 2000", 'UTC')
+      ce.next_fire_at(Time.utc(1999,1,1)).must_equal Time.parse('Mon, 03 Jan 2000 00:00:00 UTC +00:00')
+    end
+
+    it "gets the closest weekday in the month" do
+      ce = SayWhen::CronExpression.new("0 0 0 1W 1 ? 2000", 'UTC')
+      ce.next_fire_at(Time.utc(1999,1,1)).must_equal Time.parse('Tue, 03 Jan 2000 00:00:00 UTC +00:00')
+
+      ce = SayWhen::CronExpression.new("0 0 0 10W 1 ? 2000", 'UTC')
+      ce.next_fire_at(Time.utc(1999,1,1)).must_equal Time.parse('Mon, 10 Jan 2000 00:00:00 UTC +00:00')
+    end
   end
 
   describe 'get first sunday in the month with "1#1' do

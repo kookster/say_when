@@ -8,6 +8,7 @@ module SayWhen
 
       def initialize(options={})
         self.job = options.delete(:job)
+        raise ArgumentError.new("job must be provided to create a trigger") unless self.job
       end
 
       def next_fire_at(time=nil)

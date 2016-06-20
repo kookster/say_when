@@ -13,9 +13,6 @@ require 'say_when/railtie' if defined?(Rails)
 module SayWhen
   class << self
 
-    @scheduler = nil
-    @lock = Mutex.new
-
     def logger
       @logger ||= if defined?(Rails)
         Rails.logger
@@ -33,6 +30,7 @@ module SayWhen
     end
 
     def configure(opts = {})
+      @lock ||= Mutex.new
       options.merge(opts)
       yield options if block_given?
     end

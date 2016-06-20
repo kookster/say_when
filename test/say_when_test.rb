@@ -13,4 +13,8 @@ describe SayWhen do
     SayWhen.logger = l
     l.must_equal l
   end
+
+  it 'provides the scheduler' do
+    SayWhen.scheduler.wont_be_nil
+  end
 end

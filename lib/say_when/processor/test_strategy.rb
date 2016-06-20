@@ -4,18 +4,17 @@ module SayWhen
   module Processor
     class TestStrategy
       class << self
-        @jobs = []
 
         def process(job)
-          @jobs << job
+          self.jobs << job
         end
 
         def reset
-          @jobs = []
+          self.jobs = []
         end
 
         def jobs
-          @jobs
+          @jobs ||= []
         end
       end
     end

@@ -10,7 +10,7 @@ module SayWhen
     attr_reader :expression
     attr_accessor :time_zone, :seconds, :minutes, :hours, :days_of_month, :months, :days_of_week, :years
 
-    def initialize(expression, time_zone = nil)
+    def initialize(expression = {}, time_zone = nil)
       if expression.is_a?(Hash)
         opts = expression
 
@@ -28,19 +28,14 @@ module SayWhen
           "#{opts[:seconds]} #{opts[:minutes]} #{opts[:hours]} #{opts[:days_of_month]} #{opts[:months]} #{opts[:days_of_week]} #{opts[:years]}"
         end
 
-        self.time_zone = if opts.has_key?(:time_zone) && !opts[:time_zone].blank?
-          opts[:time_zone]
-        else
-          Time.zone.nil? ? 'UTC' : Time.zone.name
-        end
-
+        @time_zone = opts[:time_zone]
       else
         @expression = expression
-        self.time_zone = if time_zone.blank?
-            Time.zone.nil? ? 'UTC' : Time.zone.name
-          else
-            time_zone
-          end
+      end
+
+      @time_zone ||= time_zone
+      if @time_zone.blank?
+        @time_zone = Time.zone.try(:name) || "UTC"
       end
 
       parse
@@ -122,7 +117,6 @@ module SayWhen
       [before, false]
     end
 
-
   end
 
   class CronValue
@@ -154,19 +148,24 @@ module SayWhen
       values = []
       case val
         #check for a '/' for increments
-        when /(\w+)\/(\d+)/ then (( $1 == "*") ? min : $1.to_i).step(max, $2.to_i) { |x| values << x }
+        when /(.+)\/(\d+)/
+          (( $1 == "*") ? min : $1.to_i).step(max, $2.to_i) { |x| values << x }
 
         #check for ',' for list of values
-        when /(\d+)(,\d+)+/ then values = val.split(',').map{ |v| v.to_i }.sort
+        when /(\d+)(,\d+)+/
+          values = val.split(',').map{ |v| v.to_i }.sort
 
         #check for '-' for range of values
-        when /(\d+)-(\d+)/ then values = (($1.to_i)..($2.to_i)).to_a
+        when /(\d+)-(\d+)/
+          values = (($1.to_i)..($2.to_i)).to_a
 
         #check for '*' for all values between min and max
-        when /^(\*)$/ then values = (min..max).to_a
+        when /^(\*)$/
+          values = (min..max).to_a
 
         #lastly, should just be a number
-        when /^(\d+)$/ then values << $1.to_i
+        when /^(\d+)$/
+          values << $1.to_i
 
         #if nothing else, leave values as []
         else values = []
@@ -535,7 +534,7 @@ module SayWhen
 
   class YearsCronValue < CronValue
     def initialize(exp)
-      super(:year, 1970, 2099, exp)
+      super(:year, 1970, (Date.today.year + 100), exp)
     end
 
     def next(date)

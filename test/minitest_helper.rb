@@ -19,8 +19,6 @@ require 'minitest/spec'
 require 'minitest/mock'
 require 'fileutils'
 
-Dir[File.expand_path(File.join(File.dirname(__FILE__),'support','**','*.rb'))].each {|f| require f}
-
 require 'active_support'
 
 module SayWhen
