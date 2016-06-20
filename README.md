@@ -31,6 +31,7 @@ Or install it yourself as:
 
     $ gem install say_when
 
+<<<<<<< HEAD
 ## Configuration
 
 To use, first configure how jobs are stored and processed.
@@ -97,15 +98,33 @@ For example, you might create a job to send a reminder a week after a user is cr
 By associating it with the `ActiveRecord` object, you can more easily manage this reminder, such as canceling it if they close their account.
 
 When using `ActiveRecord` integration in Rails, there is a generator for the migration to create the tables for saving scheduled jobs:
+=======
+## ActiveRecord integration
+
+Besides storing jobs in ActiveRecord, you can also associate jobs with other models.
+
+There is an `acts_as_scheduled` method you can call in an ActiveRecord class for this purpose.
+It both makes it easier to schedule a job, and to see manage the list of related jobs.
+
+For example, you might create a job to send a reminder a week after a user is created, and relate this new job to that user.
+By associating it with the AR object, you can more easily manage this reminder, such as cancelling it if they close their account.
+
+When using AR integration in Rails, there is a generator for the migration to create the tables for saving scheduled jobs:
+>>>>>>> 37285157ab728c0f38702a975fb43d9f7a0f71d2
 ```
 bundle exec rails generate say_when:migration
 ```
 
+<<<<<<< HEAD
 The resulting migration assumes the scheduled jobs will use a integer based id column, please update the default migration if this is not the case in your system:
+=======
+The resulting migration assumes the scheduled jobs will use a integer based id column, please updatethe default migration if this is not the case in your system:
+>>>>>>> 37285157ab728c0f38702a975fb43d9f7a0f71d2
 ```ruby
 # change this to string or other type as needed
 t.integer   :scheduled_id
 ```
+<<<<<<< HEAD
 
 ## Pollers
 
