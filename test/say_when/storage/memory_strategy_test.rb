@@ -49,6 +49,14 @@ describe SayWhen::Storage::MemoryStrategy do
     next_job.status.must_equal "waiting"
   end
 
+  it 'can reset acquired jobs' do
+    j = strategy.create(valid_attributes)
+    j.status = 'acquired'
+    j.updated_at = 2.hours.ago
+    strategy.reset_acquired(3600)
+    j.status.must_equal 'waiting'
+  end
+
   it 'can be fired' do
     opts = valid_attributes[:trigger_options]
     ce = SayWhen::CronExpression.new(opts[:expression], opts[:time_zone])

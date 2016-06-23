@@ -10,6 +10,10 @@ module SayWhen
           SayWhen::Storage::MemoryStrategy::Job.acquire_next(no_later_than)
         end
 
+        def reset_acquired(older_than_seconds)
+          SayWhen::Storage::MemoryStrategy::Job.reset_acquired(older_than_seconds)
+        end
+
         def fired(job, fired_at = Time.now)
           job.fired(fired_at)
         end

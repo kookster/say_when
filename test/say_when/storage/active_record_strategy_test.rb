@@ -82,6 +82,19 @@ describe SayWhen::Storage::ActiveRecordStrategy do
     end
   end
 
+  it 'resets acquired jobs' do
+    old = 2.hours.ago
+    j = strategy.create(valid_attributes)
+    j.update_attributes(status: 'acquired', updated_at: old, created_at: old)
+
+    j.status.must_equal 'acquired'
+
+    strategy.reset_acquired(3600)
+
+    j.reload
+    j.status.must_equal 'waiting'
+  end
+
   it 'can be fired' do
     opts = valid_attributes[:trigger_options]
     ce = SayWhen::CronExpression.new(opts[:expression], opts[:time_zone])

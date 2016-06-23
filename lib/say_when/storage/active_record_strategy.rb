@@ -10,6 +10,10 @@ module SayWhen
           SayWhen::Storage::ActiveRecordStrategy::Job.acquire_next(no_later_than)
         end
 
+        def reset_acquired(older_than_seconds)
+          SayWhen::Storage::ActiveRecordStrategy::Job.reset_acquired(older_than_seconds)
+        end
+
         def create(job)
           SayWhen::Storage::ActiveRecordStrategy::Job.create(job)
         end
@@ -53,6 +57,7 @@ module SayWhen
           next_job = nil
           no_later_than = (no_later_than || Time.now).in_time_zone('UTC')
 
+          check_connection
           hide_logging do
             SayWhen::Storage::ActiveRecordStrategy::Job.transaction do
               # select and lock the next job that needs executin' (status waiting, and after no_later_than)
@@ -67,6 +72,20 @@ module SayWhen
             end
           end
           next_job
+        end
+
+        def self.reset_acquired(older_than_seconds)
+          return unless older_than_seconds.to_i > 0
+          older_than = (Time.now - older_than_seconds.to_i)
+          where('status = ? and updated_at < ?', STATE_ACQUIRED, older_than).update_all("status = '#{STATE_WAITING}'")
+        end
+
+        def self.check_connection
+          if ActiveRecord::Base.respond_to?(:clear_active_connections!)
+            ActiveRecord::Base.clear_active_connections!
+          elsif ActiveRecord::Base.respond_to?(:verify_active_connections!)
+            ActiveRecord::Base.verify_active_connections!
+          end
         end
 
         def self.hide_logging
