@@ -8,6 +8,7 @@ module SayWhen
 
       def self.included(mod)
         mod.include(SayWhen::Utils)
+        attr_accessor :reset_next_at
       end
 
       def stop
@@ -17,6 +18,15 @@ module SayWhen
       end
 
       def reset_acquired
+        logger.debug "SayWhen:: reset acquired at #{time_now}, try again at #{reset_next_at}"
+        time_now = Time.now
+        reset_next_at ||= time_now
+
+        if reset_acquired_length > 0 && reset_next_at <= time_now
+          reset_next_at = time_now + reset_acquired_length
+          logger.debug "SayWhen:: reset acquired at #{time_now}, try again at #{reset_next_at}"
+          storage.reset_acquired(reset_acquired_length)
+        end
       end
 
       def job_error(msg, job, ex)
@@ -26,9 +36,13 @@ module SayWhen
       end
 
       def process_jobs
+        reset_acquired
         while time_now = Time.now && job = acquire(time_now)
           process(time_now, job)
         end
+      rescue StandardError => ex
+        job_error("Error!", job, ex)
+        tick(error_tick_length)
       rescue Interrupt => ex
         job_error("Interrupt!", job, ex)
         raise ex
@@ -45,9 +59,6 @@ module SayWhen
           logger.debug "SayWhen:: no jobs to acquire"
         end
         job
-      rescue StandardError => ex
-        job_error("Failure to acquire job", job, ex)
-        raise ex
       end
 
       def process(job = nil, time_now = Time.now)
@@ -63,9 +74,6 @@ module SayWhen
       def release(job)
         logger.info "SayWhen::Scheduler release: #{job.inspect}"
         job.release if job
-      rescue StandardError => ex
-        logger "Failed to release job: #{job.inspect}" rescue nil
-        raise ex
       end
 
       def tick(t = tick_length)
@@ -77,7 +85,11 @@ module SayWhen
       end
 
       def error_tick_length
-        @error_tick_length ||= SayWhen.options[:error_tick_length].to_f
+        @error_tick_length ||= SayWhen.options[:error_tick_length].to_f || tick_length
+      end
+
+      def reset_acquired_length
+        @reset_acquired_length ||= SayWhen.options[:reset_acquired_length].to_f
       end
 
       def processor
