@@ -5,7 +5,6 @@ require 'active_record_helper'
 require 'say_when/storage/active_record_strategy'
 
 describe SayWhen::Storage::ActiveRecordStrategy do
-
   let(:valid_attributes) {
     {
       trigger_strategy: :cron,
@@ -72,6 +71,7 @@ describe SayWhen::Storage::ActiveRecordStrategy do
     now = Time.now.change(hour: 0)
     Time.stub(:now, now) do
       j1 = strategy.create(valid_attributes)
+      j1.wont_be_nil
       j2 = strategy.create(j2_opts)
 
       next_job = strategy.acquire_next(2.days.since)
@@ -114,39 +114,21 @@ describe SayWhen::Storage::ActiveRecordStrategy do
   end
 
   describe "acts_as_scheduled" do
-    before(:all) {
-      class TestActsAsScheduled
-
-        @@_has_many = false
-
-        def self.has_many_called?
-          @@_has_many
-        end
-
-        def self.has_many(*args)
-          @@_has_many = true
-        end
-
-        include SayWhen::Storage::ActiveRecordStrategy::Acts
-        acts_as_scheduled
-      end
-    }
-
     it "acts_as_scheduled calls has_many" do
-      TestActsAsScheduled.must_be :has_many_called?
+      SayWhen::Test::TestActsAsScheduled.must_be :has_many_called?
     end
 
     it "includes schedule methods" do
-      taas = TestActsAsScheduled.new
+      taas = SayWhen::Test::TestActsAsScheduled.new
       [:schedule, :schedule_instance, :schedule_cron, :schedule_once, :schedule_in].each do |m|
         taas.respond_to?(m).must_equal true
       end
     end
+
     it "sets the scheduled value" do
-      taas = TestActsAsScheduled.new
+      taas = SayWhen::Test::TestActsAsScheduled.new
       job = taas.set_scheduled({})
       job[:scheduled].must_equal taas
     end
-
   end
 end
