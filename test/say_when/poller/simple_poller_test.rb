@@ -17,7 +17,7 @@ describe SayWhen::Poller::SimplePoller do
   it 'should start the poller running, and can stop it' do
     poller.wont_be :running
 
-    poller_thread = Thread.start{ poller.start }
+    Thread.start{ poller.start }
     sleep(0.2)
     poller.must_be :running
 

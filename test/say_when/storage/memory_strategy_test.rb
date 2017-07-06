@@ -42,6 +42,7 @@ describe SayWhen::Storage::MemoryStrategy do
 
   it 'can acquire and release the next job' do
     j = strategy.create(valid_attributes)
+    j.wont_be_nil
     next_job  = strategy.acquire_next(2.days.since)
     next_job.wont_be_nil
     next_job.status.must_equal "acquired"
