@@ -5,7 +5,6 @@ require 'say_when/utils'
 module SayWhen
   module Poller
     module BasePoller
-
       def self.included(mod)
         mod.include(SayWhen::Utils)
         attr_accessor :reset_next_at

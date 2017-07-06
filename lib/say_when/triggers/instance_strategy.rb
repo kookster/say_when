@@ -5,18 +5,17 @@ require 'say_when/triggers/base'
 module SayWhen
   module Triggers
     class InstanceStrategy
-
       include SayWhen::Triggers::Base
 
       attr_accessor :instance, :next_at_method
 
-      def initialize(options={})
+      def initialize(options = {})
         super
-        self.instance       = job.scheduled
+        self.instance = job.scheduled
         self.next_at_method = options[:next_at_method] || 'next_fire_at'
       end
 
-      def next_fire_at(time=Time.now)
+      def next_fire_at(time = Time.now)
         instance.send(next_at_method, time)
       end
     end

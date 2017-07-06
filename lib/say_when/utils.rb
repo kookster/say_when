@@ -2,7 +2,6 @@
 
 module SayWhen
   module Utils
-
     def load_strategy(strategy_type, strategy)
       if strategy.is_a?(Symbol) || strategy.is_a?(String)
         require "say_when/#{strategy_type}/#{strategy}_strategy"

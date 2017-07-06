@@ -12,7 +12,6 @@ require 'say_when/railtie' if defined?(Rails)
 
 module SayWhen
   class << self
-
     def logger
       @logger ||= if defined?(Rails)
         Rails.logger

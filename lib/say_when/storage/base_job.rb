@@ -3,7 +3,6 @@
 module SayWhen
   module Storage
     module BaseJob
-
       # ready to be run, just waiting for its turn
       STATE_WAITING = 'waiting'
 
@@ -29,8 +28,8 @@ module SayWhen
         @trigger ||= load_trigger
       end
 
-      def fired(fired_at=Time.now)
-        lock.synchronize {
+      def fired(fired_at = Time.now)
+        lock.synchronize do
           self.last_fire_at = fired_at
           self.next_fire_at = trigger.next_fire_at(last_fire_at + 1.second) rescue nil
 
@@ -39,15 +38,15 @@ module SayWhen
           else
             self.status = STATE_WAITING
           end
-        }
+        end
       end
 
       def release
-        lock.synchronize {
+        lock.synchronize do
           if self.status == STATE_ACQUIRED
             self.status = STATE_WAITING
           end
-        }
+        end
       end
 
       def execute

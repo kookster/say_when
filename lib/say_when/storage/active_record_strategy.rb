@@ -4,7 +4,6 @@ require 'say_when/storage/base_job'
 module SayWhen
   module Storage
     class ActiveRecordStrategy
-
       class << self
         def acquire_next(no_later_than = nil)
           SayWhen::Storage::ActiveRecordStrategy::Job.acquire_next(no_later_than)
@@ -151,19 +150,20 @@ module SayWhen
       end
 
       module Acts #:nodoc:
-
         extend ActiveSupport::Concern
 
         module ClassMethods
           def acts_as_scheduled
             include SayWhen::Storage::ActiveRecordStrategy::Acts::InstanceMethods
 
-            has_many :scheduled_jobs, as: :scheduled, class_name: 'SayWhen::Storage::ActiveRecordStrategy::Job', dependent: :destroy
+            has_many :scheduled_jobs,
+              as: :scheduled,
+              class_name: 'SayWhen::Storage::ActiveRecordStrategy::Job',
+              dependent: :destroy
           end
         end
 
         module InstanceMethods
-
           def schedule(job)
             Scheduler.schedule(set_scheduled(job))
           end
@@ -192,10 +192,8 @@ module SayWhen
             end
             job
           end
-
         end # InstanceMethods
       end # class << self
-
     end
   end
 end

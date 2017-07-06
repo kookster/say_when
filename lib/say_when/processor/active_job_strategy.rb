@@ -21,7 +21,6 @@ module SayWhen
       end
 
       class SayWhenJob < ActiveJob::Base
-
         queue_as SayWhen.options[:queue]
 
         def perform(job)

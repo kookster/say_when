@@ -4,7 +4,6 @@ require 'say_when/storage/base_job'
 module SayWhen
   module Storage
     class MemoryStrategy
-
       class << self
         def acquire_next(no_later_than = nil)
           SayWhen::Storage::MemoryStrategy::Job.acquire_next(no_later_than)
@@ -39,7 +38,6 @@ module SayWhen
         include SayWhen::Storage::BaseJob
 
         class << self
-
           def acquire_lock
             @acquire_lock ||= Mutex.new
           end
@@ -55,15 +53,15 @@ module SayWhen
           def reset_acquired(older_than_seconds)
             return unless older_than_seconds.to_i > 0
             older_than = (Time.now - older_than_seconds.to_i)
-            acquire_lock.synchronize {
+            acquire_lock.synchronize do
               jobs.select do |j|
                 j.status == SayWhen::Storage::BaseJob::STATE_ACQUIRED && j.updated_at < older_than
               end.each{ |j| j.status = SayWhen::Storage::BaseJob::STATE_WAITING }
-            }
+            end
           end
 
           def acquire_next(no_later_than)
-            acquire_lock.synchronize {
+            acquire_lock.synchronize do
               next_job = jobs.detect(nil) do |j|
                 (j.status == SayWhen::Storage::BaseJob::STATE_WAITING) &&
                 (j.next_fire_at.to_i <= no_later_than.to_i)
@@ -73,7 +71,7 @@ module SayWhen
                 next_job.updated_at = Time.now
               end
               next_job
-            }
+            end
           end
 
           def create(job)
@@ -102,7 +100,7 @@ module SayWhen
         has_properties :trigger_strategy, :trigger_options, :last_fire_at, :next_fire_at
         has_properties :job_class, :job_method, :data, :updated_at, :scheduled
 
-        def initialize(options={})
+        def initialize(options = {})
           options.each do |k,v|
             if self.class.props.member?(k.to_s)
               send("#{k}=", v)
@@ -115,7 +113,7 @@ module SayWhen
         end
 
         def to_hash
-          [:job_class, :job_method, :data].inject({}){|h,k| h[k] = send(k); h }
+          [:job_class, :job_method, :data].inject({}) { |h,k| h[k] = send(k); h }
         end
 
         def save

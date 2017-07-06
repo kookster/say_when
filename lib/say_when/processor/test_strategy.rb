@@ -4,7 +4,6 @@ module SayWhen
   module Processor
     class TestStrategy
       class << self
-
         def process(job)
           self.jobs << job
         end
