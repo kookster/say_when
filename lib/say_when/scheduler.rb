@@ -6,8 +6,6 @@ module SayWhen
   class Scheduler
     include SayWhen::Utils
 
-    attr_accessor :storage
-
     # When passing in a job, can be a Hash, String, or Class
     # Hash: { class: '<class name>' } or { job_class: '<class name>' }
     # String: '<class name>'
@@ -84,6 +82,10 @@ module SayWhen
 
     def extract_data(job)
       job[:data] if job && job.is_a?(Hash)
+    end
+
+    def storage=(s)
+      @storage = s
     end
 
     def storage
