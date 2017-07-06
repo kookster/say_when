@@ -8,7 +8,7 @@ module SayWhen
 
       def self.included(mod)
         mod.include(SayWhen::Utils)
-        attr_accessor :reset_next_at unless defined?(:reset_next_at)
+        attr_accessor :reset_next_at
       end
 
       def stop
