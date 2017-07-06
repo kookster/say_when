@@ -8,7 +8,7 @@ module SayWhen
 
       def self.included(mod)
         mod.include(SayWhen::Utils)
-        attr_accessor :reset_next_at
+        attr_accessor :reset_next_at unless defined?(:reset_next_at)
       end
 
       def stop
@@ -18,12 +18,11 @@ module SayWhen
       end
 
       def reset_acquired
-        logger.debug "SayWhen:: reset acquired at #{time_now}, try again at #{reset_next_at}"
         time_now = Time.now
-        reset_next_at ||= time_now
+        self.reset_next_at ||= time_now
 
         if reset_acquired_length > 0 && reset_next_at <= time_now
-          reset_next_at = time_now + reset_acquired_length
+          self.reset_next_at = time_now + reset_acquired_length
           logger.debug "SayWhen:: reset acquired at #{time_now}, try again at #{reset_next_at}"
           storage.reset_acquired(reset_acquired_length)
         end
@@ -37,8 +36,10 @@ module SayWhen
 
       def process_jobs
         reset_acquired
-        while time_now = Time.now && job = acquire(time_now)
-          process(time_now, job)
+        time_now = Time.now
+        while job = acquire(time_now)
+          process(job, time_now)
+          time_now = Time.now
         end
       rescue StandardError => ex
         job_error("Error!", job, ex)
@@ -51,7 +52,7 @@ module SayWhen
         raise ex
       end
 
-      def acquire(time_now = Time.now)
+      def acquire(time_now)
         logger.debug "SayWhen:: Looking for job that should be ready to fire before #{time_now}"
         if job = self.storage.acquire_next(time_now)
           logger.debug "SayWhen:: got a job: #{job.inspect}"
@@ -61,7 +62,7 @@ module SayWhen
         job
       end
 
-      def process(job = nil, time_now = Time.now)
+      def process(job, time_now)
         # delegate processing the trigger to the processor
         processor.process(job)
         logger.debug "SayWhen:: job processed: #{job.inspect}"
