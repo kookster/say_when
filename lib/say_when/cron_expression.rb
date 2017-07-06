@@ -3,9 +3,8 @@
 require 'date'
 
 module SayWhen
-
   # Based on the extended cron capabilties
-  # http://wiki.opensymphony.com/display/QRTZ1/CronTriggers+Tutorial
+  # http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/tutorial-lesson-06.html
   class CronExpression
     attr_reader :expression
     attr_accessor :time_zone, :seconds, :minutes, :hours, :days_of_month, :months, :days_of_week, :years
