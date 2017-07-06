@@ -15,7 +15,7 @@ module SayWhen
         end
 
         def create(job)
-          SayWhen::Storage::ActiveRecordStrategy::Job.create(job)
+          SayWhen::Storage::ActiveRecordStrategy::Job.job_create(job)
         end
 
         def fired(job, fired_at = Time.now)
@@ -52,6 +52,18 @@ module SayWhen
         has_many  :job_executions, class_name: 'SayWhen::Storage::ActiveRecordStrategy::JobExecution'
 
         before_create :set_defaults
+
+        def self.job_create(job)
+          if existing_job = find_named_job(job[:group], job[:name])
+            existing_job.tap { |j| j.update_attributes(job) }
+          else
+            create(job)
+          end
+        end
+
+        def self.find_named_job(group, name)
+          group && name && where(name: name, group: group).first
+        end
 
         def self.acquire_next(no_later_than = nil)
           next_job = nil

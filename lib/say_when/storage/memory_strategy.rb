@@ -77,7 +77,15 @@ module SayWhen
           end
 
           def create(job)
+            if existing_job = find_named_job(job[:group], job[:name])
+              self.jobs.delete(existing_job)
+            end
+
             new(job).save
+          end
+
+          def find_named_job(group, name)
+            group && name && jobs.detect { |j| j.group == group && j.name == name }
           end
 
           def has_properties(*args)
