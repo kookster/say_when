@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 ENV['RAILS_ENV'] ||= 'test'
-ENV['CELLULOID_BACKPORTED'] ||= 'false'
 
 require 'simplecov'
 SimpleCov.start #'rails'
