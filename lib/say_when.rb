@@ -36,8 +36,8 @@ module SayWhen
     end
 
     def scheduler
-      return @scheduler if @scheduler
-      @lock.synchronize { @scheduler = SayWhen::Scheduler.new if @scheduler.nil? }
+      return @scheduler if defined?(@scheduler) && @scheduler
+      @lock.synchronize { @scheduler = SayWhen::Scheduler.new }
       @scheduler
     end
 
