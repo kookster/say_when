@@ -7,6 +7,7 @@ describe SayWhen::Poller::BasePoller do
   class TestPoller; include(SayWhen::Poller::BasePoller); end
 
   let (:poller) { TestPoller.new }
+  let (:time_now) { Time.now }
 
   it 'handles errors' do
     job = Minitest::Mock.new
@@ -22,13 +23,13 @@ describe SayWhen::Poller::BasePoller do
   end
 
   it "can acquire a job" do
-    poller.acquire
+    poller.acquire(time_now)
   end
 
   it "can process a job" do
     job = Minitest::Mock.new
     job.expect(:fired, true, [Object])
-    poller.process(job)
+    poller.process(job, time_now)
   end
 
   it "can process jobs" do
