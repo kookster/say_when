@@ -46,12 +46,16 @@ module SayWhen
     end
 
     def job_options(job)
-      {
+      opts = {
         scheduled: extract_scheduled(job),
         job_class: extract_job_class(job),
         job_method: extract_job_method(job),
         data: extract_data(job)
       }
+      unless opts[:scheduled] || opts[:job_class]
+        raise "No job class or scheduled option: #{job.inspect}\nopts: #{opts.inspect}"
+      end
+      opts
     end
 
     def extract_scheduled(job)
@@ -59,19 +63,13 @@ module SayWhen
     end
 
     def extract_job_class(job)
-      job_class = if job.is_a?(Hash)
+      if job.is_a?(Hash)
         job[:class] || job[:job_class]
       elsif job.is_a?(Class)
         job.name
       elsif job.is_a?(String)
         job
       end
-
-      if !job_class
-        raise "Could not identify job class from: #{job}"
-      end
-
-      job_class
     end
 
     def extract_job_method(job)

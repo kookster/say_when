@@ -26,16 +26,16 @@ describe SayWhen::Scheduler do
     scheduler.extract_job_class(class: 'foo').must_equal 'foo'
     scheduler.extract_job_class(SayWhen::Test::TestTask).must_equal 'SayWhen::Test::TestTask'
     scheduler.extract_job_class('SayWhen::Test::TestTask').must_equal 'SayWhen::Test::TestTask'
-
-    lambda do
-      scheduler.extract_job_class(bar: 'foo')
-    end.must_raise RuntimeError
   end
 
   it 'gets job options' do
     keys = [:job_class, :job_method, :data]
     opts = scheduler.job_options(keys.inject({}) { |s, k| s[k] = k.to_s; s } )
     keys.each{|k| opts[k].must_equal k.to_s }
+
+    lambda do
+      scheduler.job_options(bar: 'foo')
+    end.must_raise RuntimeError
   end
 
   it 'can schedule a new job' do
