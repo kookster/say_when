@@ -40,6 +40,22 @@ module SayWhen
       @scheduler
     end
 
+    def schedule_instance(next_at_method = 'next_fire_at', job = {})
+      scheduler.schedule_instance(next_at_method, job)
+    end
+
+    def schedule_cron(expression, job = {})
+      scheduler.schedule_cron(expression, job)
+    end
+
+    def schedule_once(time, job = {})
+      scheduler.schedule_once(time, job)
+    end
+
+    def schedule_in(after, job = {})
+      scheduler.schedule_in(after, job)
+    end
+
     def schedule(job)
       scheduler.schedule(job)
     end

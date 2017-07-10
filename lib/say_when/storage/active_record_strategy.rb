@@ -165,23 +165,23 @@ module SayWhen
 
         module InstanceMethods
           def schedule(job)
-            Scheduler.schedule(set_scheduled(job))
+            SayWhen.schedule(set_scheduled(job))
           end
 
           def schedule_instance(next_at_method = 'next_fire_at', job = {})
-            Scheduler.schedule_instance(next_at_method, set_scheduled(job))
+            SayWhen.schedule_instance(next_at_method, set_scheduled(job))
           end
 
           def schedule_cron(expression, job = {})
-            Scheduler.schedule_cron(expression, set_scheduled(job))
+            SayWhen.schedule_cron(expression, set_scheduled(job))
           end
 
           def schedule_once(time, job = {})
-            Scheduler.schedule_once(time, set_scheduled(job))
+            SayWhen.schedule_once(time, set_scheduled(job))
           end
 
           def schedule_in(after, job = {})
-            Scheduler.schedule_in(after, set_scheduled(job))
+            SayWhen.schedule_in(after, set_scheduled(job))
           end
 
           def set_scheduled(job)
