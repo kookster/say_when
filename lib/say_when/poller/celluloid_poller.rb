@@ -1,6 +1,11 @@
 # encoding: utf-8
 
-require 'celluloid/current'
+begin
+  require 'celluloid/current'
+rescue LoadError
+  require 'celluloid'
+end
+
 require 'logger'
 require 'say_when/poller/base_poller'
 
