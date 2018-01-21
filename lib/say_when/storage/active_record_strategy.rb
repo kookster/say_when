@@ -137,9 +137,10 @@ module SayWhen
           else
             begin
               result = self.execute_job(data)
+              SayWhen.logger.info("complete: #{result}")
             rescue Object => ex
               result = "#{ex.class.name}: #{ex.message}\n\t#{ex.backtrace.join("\n\t")}"
-              SayWhen.logger.error(result)
+              SayWhen.logger.error("error: #{result}")
             end
           end
           result
