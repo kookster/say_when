@@ -4,7 +4,7 @@ class CreateSayWhenTables < ActiveRecord::Migration
 
   def self.up
 
-    create_table :say_when_jobs, :force => true do |t|
+    create_table :<%= prefix %>say_when_jobs, :force => true do |t|
       t.string    :group
       t.string    :name
 
@@ -29,10 +29,10 @@ class CreateSayWhenTables < ActiveRecord::Migration
       t.timestamps null: false
     end
 
-    add_index :say_when_jobs, [:next_fire_at, :status]
-    add_index :say_when_jobs, [:scheduled_type, :scheduled_id]
+    add_index :<%= prefix %>say_when_jobs, [:next_fire_at, :status]
+    add_index :<%= prefix %>say_when_jobs, [:scheduled_type, :scheduled_id]
 
-    create_table :say_when_job_executions, :force => true do |t|
+    create_table :<%= prefix %>say_when_job_executions, :force => true do |t|
       t.integer  :job_id
       t.string   :status
       t.text     :result
@@ -40,12 +40,12 @@ class CreateSayWhenTables < ActiveRecord::Migration
       t.datetime :end_at
     end
 
-    add_index :say_when_job_executions, :job_id
-    add_index :say_when_job_executions, [:status, :start_at, :end_at]
+    add_index :<%= prefix %>say_when_job_executions, :job_id
+    add_index :<%= prefix %>say_when_job_executions, [:status, :start_at, :end_at]
   end
 
   def self.down
-    drop_table :say_when_job_executions
-    drop_table :say_when_jobs
+    drop_table :<%= prefix %>say_when_job_executions
+    drop_table :<%= prefix %>say_when_jobs
   end
 end

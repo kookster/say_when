@@ -31,6 +31,7 @@ Celluloid.boot
 SayWhen.configure do |options|
   options[:storage_strategy]   = :memory
   options[:processor_strategy] = :test
+  options[:table_prefix] = 'test_'
 end
 
 SayWhen.logger = Logger.new('/dev/null')

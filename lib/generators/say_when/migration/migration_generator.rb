@@ -14,8 +14,12 @@ module SayWhen
 
     argument :name, type: :string, default: 'random_name'
 
+    def prefix
+      SayWhen.options[:table_prefix] || ''
+    end
+
     def manifest
-      migration_template 'migration.rb', 'db/migrate/create_say_when_tables.rb'
+      migration_template('migration.rb', 'db/migrate/create_say_when_tables.rb')
     end
   end
 end
