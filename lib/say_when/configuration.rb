@@ -10,6 +10,8 @@ module SayWhen
         defaults[:tick_length] = (ENV['SAY_WHEN_TICK_LENGTH'] || '5').to_i
         defaults[:queue] = ENV['SAY_WHEN_QUEUE'] || 'default'
         defaults[:reset_acquired_length] = (ENV['SAY_WHEN_RESET_ACQUIRED_LENGTH'] || '3600').to_i
+        defaults[:store_executions] = false
+        defaults[:table_prefix] = ''
       end
     end
   end

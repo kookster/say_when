@@ -35,14 +35,14 @@ module SayWhen
       end
 
       class JobExecution < ActiveRecord::Base
-        self.table_name = 'say_when_job_executions'
+        self.table_name = "#{SayWhen.options[:table_prefix]}say_when_job_executions"
         belongs_to :job, class_name: 'SayWhen::Storage::ActiveRecordStrategy::Job'
       end
 
       class Job < ActiveRecord::Base
         include SayWhen::Storage::BaseJob
 
-        self.table_name = 'say_when_jobs'
+        self.table_name = "#{SayWhen.options[:table_prefix]}say_when_jobs"
 
         serialize :trigger_options
         serialize :data
@@ -132,11 +132,25 @@ module SayWhen
         # default impl with some error handling and result recording
         def execute
           result = nil
+          if SayWhen.options[:store_executions]
+            result = execute_with_stored_result
+          else
+            begin
+              result = self.execute_job(data)
+              SayWhen.logger.info("complete - job: #{self.inspect}, result: #{result}")
+            rescue Object => ex
+              result = "#{ex.class.name}: #{ex.message}\n\t#{ex.backtrace.join("\n\t")}"
+              SayWhen.logger.error("error - job: #{self.inspect}, exception: #{result}")
+            end
+          end
+          result
+        end
+
+        def execute_with_stored_result
           execution = JobExecution.create(job: self, status: STATE_EXECUTING, start_at: Time.now)
 
           begin
-            result = self.execute_job(data)
-            execution.result = result
+            execution.result = self.execute_job(data)
             execution.status = 'complete'
           rescue Object => ex
             execution.result = "#{ex.class.name}: #{ex.message}\n\t#{ex.backtrace.join("\n\t")}"
@@ -145,7 +159,8 @@ module SayWhen
 
           execution.end_at = Time.now
           execution.save!
-          result
+
+          execution.result
         end
       end
 

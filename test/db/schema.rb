@@ -2,7 +2,7 @@
 
 ActiveRecord::Schema.define(:version => 0) do
 
-  create_table :say_when_jobs, :force => true do |t|
+  create_table :test_say_when_jobs, :force => true do |t|
 
     t.string    :status
 
@@ -23,7 +23,7 @@ ActiveRecord::Schema.define(:version => 0) do
     t.timestamps null: false
   end
 
-  create_table :say_when_job_executions, :force => true do |t|
+  create_table :test_say_when_job_executions, :force => true do |t|
     t.integer  :job_id
     t.string   :status
     t.text     :result
@@ -31,8 +31,8 @@ ActiveRecord::Schema.define(:version => 0) do
     t.datetime :end_at
   end
 
-  add_index :say_when_jobs, :status
-  add_index :say_when_jobs, :next_fire_at
+  add_index :test_say_when_jobs, :status
+  add_index :test_say_when_jobs, :next_fire_at
 
 
 end
