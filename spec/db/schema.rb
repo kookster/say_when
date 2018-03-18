@@ -28,9 +28,11 @@ ActiveRecord::Schema.define(:version => 0) do
     t.datetime :start_at
     t.datetime :end_at
   end
-  
+
   add_index :say_when_jobs, :status
   add_index :say_when_jobs, :next_fire_at
+  add_index :say_when_jobs, [:next_fire_at, :status]
+  add_index :say_when_jobs, [:last_fire_at, :status]
 
 
 end

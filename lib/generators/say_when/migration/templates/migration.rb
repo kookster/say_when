@@ -1,5 +1,5 @@
 class CreateSayWhenTables < ActiveRecord::Migration
-  
+
   def self.up
 
     create_table :say_when_jobs, :force => true do |t|
@@ -35,11 +35,13 @@ class CreateSayWhenTables < ActiveRecord::Migration
       t.datetime :start_at
       t.datetime :end_at
     end
-    
+
     add_index :say_when_jobs, :status
     add_index :say_when_jobs, :next_fire_at
+    add_index :say_when_jobs, [:next_fire_at, :status]
+    add_index :say_when_jobs, [:last_fire_at, :status]
   end
-  
+
   def self.down
     drop_table :say_when_job_executions
     drop_table :say_when_jobs
