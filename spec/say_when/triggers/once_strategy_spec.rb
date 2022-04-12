@@ -1,5 +1,5 @@
-require File.dirname(__FILE__) + '/../../spec_helper'
-require File.dirname(__FILE__) + '/../../../lib/say_when/triggers/once_strategy'
+require_relative '../../spec_helper'
+require_relative '../../../lib/say_when/triggers/once_strategy'
 
 describe SayWhen::Triggers::OnceStrategy do
 

@@ -1,5 +1,5 @@
-require File.dirname(__FILE__) + '/../spec_helper'
-require File.dirname(__FILE__) + '/../active_record_spec_helper'
+require_relative '../spec_helper'
+require_relative '../active_record_spec_helper'
 
 describe SayWhen::Scheduler do
 
@@ -58,15 +58,15 @@ describe SayWhen::Scheduler do
     it "should start the scheduler running and stop it" do
       @scheduler.running.should be_false
 
-      puts 'starting'
+      # puts 'starting'
       scheduler_thread = Thread.start{@scheduler.start}
-      puts 'started'
+      # puts 'started'
       sleep(0.1)
       @scheduler.running.should == true
 
-      puts 'stop'
+      # puts 'stop'
       @scheduler.stop
-      puts 'wait for it'
+      # puts 'wait for it'
       @scheduler.running.should == false
     end
 
