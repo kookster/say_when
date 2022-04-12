@@ -1,6 +1,6 @@
-require File.dirname(__FILE__) + '/../../../spec_helper'
-require File.dirname(__FILE__) + '/../../../active_record_spec_helper'
-require File.dirname(__FILE__) + '/../../../../lib/say_when/storage/active_record/job'
+require_relative '../../../spec_helper'
+require_relative '../../../active_record_spec_helper'
+require_relative '../../../../lib/say_when/storage/active_record/job'
 
 describe SayWhen::Storage::ActiveRecord::Job do
 
@@ -66,14 +66,15 @@ describe SayWhen::Storage::ActiveRecord::Job do
     j2_opts = {
       :trigger_strategy => :cron,
       :trigger_options  => {:expression => '0 0 10 ? * * *', :time_zone  => 'Pacific Time (US & Canada)'},
-      :data             => {:foo=>'bar', :result=>2},
+      :data             => {:foo=>'can find the next job - j2', :result=>2},
       :job_class        => 'SayWhen::Test::TestTask',
       :job_method       => 'execute'
     }
 
     j1 = SayWhen::Storage::ActiveRecord::Job.create(@valid_attributes)
     j2 = SayWhen::Storage::ActiveRecord::Job.create(j2_opts)
-    next_job = SayWhen::Storage::ActiveRecord::Job.acquire_next(1.day.since)
+    acquire = 1.day.since
+    next_job = SayWhen::Storage::ActiveRecord::Job.acquire_next(acquire)
     next_job.should == j2
   end
 
@@ -94,5 +95,4 @@ describe SayWhen::Storage::ActiveRecord::Job do
     j.last_fire_at.should == now
     j.status.should == SayWhen::BaseJob::STATE_WAITING
   end
-
 end

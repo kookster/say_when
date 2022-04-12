@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/../../../spec_helper'
+require_relative '../../../spec_helper'
 # require File.dirname(__FILE__) + '/../../../../lib/say_when/store/memory/trigger'
 
 # describe SayWhen::Store::Memory::Trigger do

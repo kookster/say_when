@@ -1,7 +1,6 @@
-
-require File.dirname(__FILE__) + '/../../spec_helper'
-require File.dirname(__FILE__) + '/../../../lib/say_when/processor/active_messaging'
-require File.dirname(__FILE__) + '/../../../lib/say_when/storage/active_record/job'
+require_relative '../../spec_helper'
+require_relative '../../../lib/say_when/processor/active_messaging'
+require_relative '../../../lib/say_when/storage/active_record/job'
 
 def destination(destination_name)
   d = ActiveMessaging::Gateway.find_destination(destination_name).value
