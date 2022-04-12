@@ -8,7 +8,7 @@ module SayWhen
     @@scheduler = nil
     @@lock = nil
 
-    attr_accessor :storage_strategy, :processor_class, :tick_length, :reset_acquired_length
+    attr_accessor :storage_strategy, :processor_class, :tick_length, :reset_acquired_length, :reset_next_at
 
     attr_accessor :running
 
@@ -63,66 +63,67 @@ module SayWhen
       trap("TERM", "EXIT")
 
       begin
-
         self.running = true
 
         logger.info "SayWhen::Scheduler running"
-        job = nil
-        reset_next_at = Time.now
         while running
-          begin
-            time_now = Time.now
-
-            if reset_acquired_length > 0 && reset_next_at <= time_now
-              reset_next_at = time_now + reset_acquired_length
-              logger.debug "SayWhen:: reset acquired at #{time_now}, try again at #{reset_next_at}"
-              job_class.reset_acquired(reset_acquired_length)
-            end
-
-            begin
-              logger.debug "SayWhen:: Looking for job that should be ready to fire before #{time_now}"
-              job = job_class.acquire_next(time_now)
-            rescue StandardError => ex
-              job_error("Failure to acquire job", job, ex)
-              job = nil
-            end
-
-            if job.nil?
-              logger.debug "SayWhen:: no jobs to acquire, sleep"
-              sleep(tick_length)
-              next
-            end
-
-            begin
-              logger.debug "SayWhen:: got a job: #{job.inspect}"
-              # delegate processing the trigger to the processor
-              self.processor.process(job)
-              logger.debug "SayWhen:: job processed"
-
-              # if successful, update next fire at, put back to waiting / ended
-              job.fired(time_now)
-              logger.debug "SayWhen:: job fired complete"
-            rescue StandardError=>ex
-              job_error("Failure to process", job, ex)
-            end
-
-          rescue Interrupt => ex
-            job_error("Interrupt!", job, ex)
-            raise ex
-          rescue StandardError => ex
-            job_error("Error!", job, ex)
-            sleep(tick_length)
-          rescue Exception => ex
-            job_error("Exception!", job, ex)
-            raise ex
-          end
+          process_jobs
         end
-      rescue Exception=>ex
+      rescue Exception => ex
         logger.error "SayWhen::Scheduler stopping, error: #{ex.class.name}: #{ex.message}"
         exit
       end
 
       logger.info "SayWhen::Scheduler stopped"
+    end
+
+    def process_jobs
+      job = nil
+      time_now = Time.now
+      self.reset_next_at ||= Time.now
+
+      if reset_acquired_length > 0 && reset_next_at <= time_now
+        self.reset_next_at = time_now + reset_acquired_length
+        logger.debug "SayWhen:: reset acquired at #{time_now}, try again at #{reset_next_at}"
+        job_class.reset_acquired(reset_acquired_length)
+      end
+
+      begin
+        logger.debug "SayWhen:: Looking for job that should be ready to fire before #{time_now}"
+        job = job_class.acquire_next(time_now)
+      rescue StandardError => ex
+        job_error("Failure to acquire job", job, ex)
+        job = nil
+      end
+
+      if job.nil?
+        logger.debug "SayWhen:: no jobs to acquire, sleep"
+        sleep(tick_length)
+        return
+      end
+
+      begin
+        logger.debug "SayWhen:: got a job: #{job.inspect}"
+        # delegate processing the trigger to the processor
+        self.processor.process(job)
+        logger.debug "SayWhen:: job processed"
+
+        # if successful, update next fire at, put back to waiting / ended
+        job.fired(time_now)
+        logger.debug "SayWhen:: job fired complete"
+      rescue StandardError => ex
+        job_error("Failure to process", job, ex)
+      end
+
+    rescue Interrupt => ex
+      job_error("Interrupt!", job, ex)
+      raise ex
+    rescue StandardError => ex
+      job_error("Error!", job, ex)
+      sleep(tick_length)
+    rescue Exception => ex
+      job_error("Exception!", job, ex)
+      raise ex
     end
 
     def job_error(msg, job, ex)
@@ -154,6 +155,5 @@ module SayWhen
     def logger
       SayWhen::logger
     end
-
   end
 end
