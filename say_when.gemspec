@@ -18,8 +18,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "activemessaging", '~> 0.9.0'
   s.add_development_dependency "activesupport", '~> 2.3.14'
   s.add_development_dependency "activerecord", '~> 2.3.14'
-  s.add_development_dependency 'rspec', "~> 1.3"
+  s.add_development_dependency 'rspec', '~> 1.3'
+  s.add_development_dependency 'rake', '~> 10.5.0'
   s.add_development_dependency 'sqlite3'
-  s.add_development_dependency 'rake', '~> 0.8.7'
-
 end
