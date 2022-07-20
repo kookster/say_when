@@ -73,8 +73,7 @@ describe SayWhen::Storage::ActiveRecord::Job do
 
     j1 = SayWhen::Storage::ActiveRecord::Job.create(@valid_attributes)
     j2 = SayWhen::Storage::ActiveRecord::Job.create(j2_opts)
-    acquire = 1.day.since
-    next_job = SayWhen::Storage::ActiveRecord::Job.acquire_next(acquire)
+    next_job = SayWhen::Storage::ActiveRecord::Job.acquire_next(25.hours.since)
     next_job.should == j2
   end
 
