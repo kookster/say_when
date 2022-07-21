@@ -25,6 +25,7 @@ describe SayWhen::Scheduler do
         scheduler.storage_strategy = :active_record
         scheduler.processor_class  = SayWhen::Test::TestProcessor
       end
+      SayWhen::Storage::ActiveRecord::Job.delete_all
 
       job = SayWhen::Scheduler.schedule(
         :trigger_strategy => 'once',
@@ -35,6 +36,58 @@ describe SayWhen::Scheduler do
       job.should_not be_nil
     end
 
+    it "can process jobs when there are no jobs" do
+      SayWhen::Storage::ActiveRecord::Job.delete_all
+
+      SayWhen::Scheduler.configure do |scheduler|
+        scheduler.storage_strategy = :active_record
+        scheduler.processor_class  = SayWhen::Test::TestProcessor
+      end
+      job = SayWhen::Scheduler.scheduler.process_jobs
+      job.should be_nil
+    end
+
+    it "can process jobs when there is a job" do
+      SayWhen::Storage::ActiveRecord::Job.delete_all
+
+      SayWhen::Scheduler.configure do |scheduler|
+        scheduler.storage_strategy = :active_record
+        scheduler.processor_class  = SayWhen::Test::TestProcessor
+      end
+
+      job = SayWhen::Scheduler.schedule(
+        :trigger_strategy => 'once',
+        :trigger_options  => {:at => 1.second.since},
+        :job_class        => 'SayWhen::Test::TestTask',
+        :job_method       => 'execute'
+      )
+      sleep(1)
+
+      processed_job = SayWhen::Scheduler.scheduler.process_jobs
+      processed_job.should_not be_nil
+      processed_job.should == job
+    end
+
+    it "can process multiple waiting jobs" do
+      SayWhen::Scheduler.configure do |scheduler|
+        scheduler.storage_strategy = :active_record
+        scheduler.processor_class  = SayWhen::Test::TestProcessor
+      end
+      SayWhen::Storage::ActiveRecord::Job.delete_all
+
+      opts = {
+        :trigger_strategy => 'once',
+        :trigger_options  => {:at => 1.seconds.since},
+        :job_class        => 'SayWhen::Test::TestTask',
+        :job_method       => 'execute'
+      }
+
+      10.times{ SayWhen::Scheduler.schedule(opts) }
+      sleep(1)
+
+      job_count = SayWhen::Scheduler.scheduler.process_waiting_jobs(100)
+      job_count.should == 10
+    end
   end
 
   describe "instance methods" do
@@ -69,8 +122,5 @@ describe SayWhen::Scheduler do
       # puts 'wait for it'
       @scheduler.running.should == false
     end
-
   end
-
-
 end

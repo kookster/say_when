@@ -35,7 +35,7 @@ module SayWhen
                               :order      => 'next_fire_at ASC',
                               :conditions => ['status = ? and ? >= next_fire_at',
                                               STATE_WAITING,
-                                              no_later_than.in_time_zone('UTC')])
+                                              no_later_than])
 
               # set status to acquired to take it out of rotation
               @next_job.update_attribute(:status, STATE_ACQUIRED) unless @next_job.nil?

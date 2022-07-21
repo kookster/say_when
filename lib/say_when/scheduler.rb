@@ -77,6 +77,18 @@ module SayWhen
       logger.info "SayWhen::Scheduler stopped"
     end
 
+    def process_waiting_jobs(max_jobs=1000)
+      jobs_processed = 0
+      while(jobs_processed < max_jobs)
+        if job = process_jobs
+          jobs_processed += 1
+        else
+          break
+        end
+      end
+      return jobs_processed
+    end
+
     def process_jobs
       job = nil
       time_now = Time.now
@@ -99,7 +111,7 @@ module SayWhen
       if job.nil?
         logger.debug "SayWhen:: no jobs to acquire, sleep"
         sleep(tick_length)
-        return
+        return job
       end
 
       begin
@@ -115,12 +127,15 @@ module SayWhen
         job_error("Failure to process", job, ex)
       end
 
-    rescue Interrupt => ex
-      job_error("Interrupt!", job, ex)
-      raise ex
+      return job
+
     rescue StandardError => ex
       job_error("Error!", job, ex)
       sleep(tick_length)
+      return job
+    rescue Interrupt => ex
+      job_error("Interrupt!", job, ex)
+      raise ex
     rescue Exception => ex
       job_error("Exception!", job, ex)
       raise ex
