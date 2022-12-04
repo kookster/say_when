@@ -48,13 +48,13 @@ module SayWhen
         serialize :data
 
         belongs_to :scheduled, polymorphic: true
-        has_many  :job_executions, class_name: 'SayWhen::Storage::ActiveRecordStrategy::JobExecution'
+        has_many :job_executions, class_name: 'SayWhen::Storage::ActiveRecordStrategy::JobExecution'
 
         before_create :set_defaults
 
         def self.job_create(job)
           if existing_job = find_named_job(job[:group], job[:name])
-            existing_job.tap { |j| j.update_attributes(job) }
+            existing_job.tap { |j| j.update(job) }
           else
             create(job)
           end
@@ -71,15 +71,15 @@ module SayWhen
           check_connection
           hide_logging do
             SayWhen::Storage::ActiveRecordStrategy::Job.transaction do
-              # select and lock the next job that needs executin' (status waiting, and after no_later_than)
-              next_job = where(status: STATE_WAITING).
-                         where('next_fire_at < ?', no_later_than).
-                         order('next_fire_at ASC').
-                         lock(true).
-                         first
+              # select and lock the next job that needs executing (status waiting, and after no_later_than)
+              next_job = where(status: STATE_WAITING)
+                        .where('next_fire_at < ?', no_later_than)
+                        .order(next_fire_at: 'asc')
+                        .lock(true)
+                        .first
 
               # set status to acquired to take it out of rotation
-              next_job.update_attribute(:status, STATE_ACQUIRED) if next_job
+              next_job&.update_attribute(:status, STATE_ACQUIRED)
             end
           end
           next_job
@@ -87,8 +87,9 @@ module SayWhen
 
         def self.reset_acquired(older_than_seconds)
           return unless older_than_seconds.to_i > 0
+
           older_than = (Time.now - older_than_seconds.to_i)
-          where('status = ? and updated_at < ?', STATE_ACQUIRED, older_than).update_all("status = '#{STATE_WAITING}'")
+          where('status = ? and updated_at < ?', STATE_ACQUIRED, older_than).update_all(status: STATE_WAITING)
         end
 
         def self.check_connection
@@ -100,10 +101,10 @@ module SayWhen
         end
 
         def self.hide_logging
-          old_logger = nil
+          @_null_logger ||= Logger.new(IO::NULL)
+          old_logger = ::ActiveRecord::Base.logger
           begin
-            old_logger = ::ActiveRecord::Base.logger
-            ::ActiveRecord::Base.logger = nil
+            ::ActiveRecord::Base.logger = @_null_logger
             yield
           ensure
             ::ActiveRecord::Base.logger = old_logger
@@ -112,21 +113,21 @@ module SayWhen
 
         def set_defaults
           self.status = STATE_WAITING
-          self.next_fire_at = self.trigger.next_fire_at
+          self.next_fire_at = trigger.next_fire_at
         end
 
-        def fired(fired_at=Time.now)
-          self.class.transaction {
+        def fired(fired_at = Time.now)
+          self.class.transaction do
             super
-            self.save!
-          }
+            save!
+          end
         end
 
         def release
-          self.class.transaction {
+          self.class.transaction do
             super
-            self.save!
-          }
+            save!
+          end
         end
 
         # default impl with some error handling and result recording
@@ -136,11 +137,11 @@ module SayWhen
             result = execute_with_stored_result
           else
             begin
-              result = self.execute_job(data)
-              SayWhen.logger.info("complete - job: #{self.inspect}, result: #{result}")
-            rescue Object => ex
-              result = "#{ex.class.name}: #{ex.message}\n\t#{ex.backtrace.join("\n\t")}"
-              SayWhen.logger.error("error - job: #{self.inspect}, exception: #{result}")
+              result = execute_job(data)
+              SayWhen.logger.info("complete - job: #{inspect}, result: #{result}")
+            rescue Object => e
+              result = "#{e.class.name}: #{e.message}\n\t#{e.backtrace.join("\n\t")}"
+              SayWhen.logger.error("error - job: #{inspect}, exception: #{result}")
             end
           end
           result
@@ -150,10 +151,10 @@ module SayWhen
           execution = JobExecution.create(job: self, status: STATE_EXECUTING, start_at: Time.now)
 
           begin
-            execution.result = self.execute_job(data)
+            execution.result = execute_job(data)
             execution.status = 'complete'
-          rescue Object => ex
-            execution.result = "#{ex.class.name}: #{ex.message}\n\t#{ex.backtrace.join("\n\t")}"
+          rescue Object => e
+            execution.result = "#{e.class.name}: #{e.message}\n\t#{e.backtrace.join("\n\t")}"
             execution.status = 'error'
           end
 
@@ -164,7 +165,7 @@ module SayWhen
         end
       end
 
-      module Acts #:nodoc:
+      module Acts # :nodoc:
         extend ActiveSupport::Concern
 
         module ClassMethods
@@ -172,9 +173,9 @@ module SayWhen
             include SayWhen::Storage::ActiveRecordStrategy::Acts::InstanceMethods
 
             has_many :scheduled_jobs,
-              as: :scheduled,
-              class_name: 'SayWhen::Storage::ActiveRecordStrategy::Job',
-              dependent: :destroy
+                     as: :scheduled,
+                     class_name: 'SayWhen::Storage::ActiveRecordStrategy::Job',
+                     dependent: :destroy
           end
         end
 
@@ -214,6 +215,4 @@ module SayWhen
 end
 
 aas = SayWhen::Storage::ActiveRecordStrategy::Acts
-unless ActiveRecord::Base.include?(aas)
-  ActiveRecord::Base.send(:include, aas)
-end
+ActiveRecord::Base.send(:include, aas) unless ActiveRecord::Base.include?(aas)
