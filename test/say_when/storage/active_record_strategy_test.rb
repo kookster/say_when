@@ -85,7 +85,7 @@ describe SayWhen::Storage::ActiveRecordStrategy do
   it 'resets acquired jobs' do
     old = 2.hours.ago
     j = strategy.create(valid_attributes)
-    j.update_attributes(status: 'acquired', updated_at: old, created_at: old)
+    j.update(status: 'acquired', updated_at: old, created_at: old)
 
     j.status.must_equal 'acquired'
 
