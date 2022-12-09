@@ -47,7 +47,7 @@ module SayWhen
         serialize :trigger_options
         serialize :data
 
-        belongs_to :scheduled, polymorphic: true
+        belongs_to :scheduled, polymorphic: true, optional: true
         has_many :job_executions, class_name: 'SayWhen::Storage::ActiveRecordStrategy::JobExecution'
 
         before_create :set_defaults
@@ -73,10 +73,10 @@ module SayWhen
             SayWhen::Storage::ActiveRecordStrategy::Job.transaction do
               # select and lock the next job that needs executing (status waiting, and after no_later_than)
               next_job = where(status: STATE_WAITING)
-                        .where('next_fire_at < ?', no_later_than)
-                        .order(next_fire_at: 'asc')
-                        .lock(true)
-                        .first
+                         .where('next_fire_at < ?', no_later_than)
+                         .order(next_fire_at: 'asc')
+                         .lock(true)
+                         .first
 
               # set status to acquired to take it out of rotation
               next_job&.update_attribute(:status, STATE_ACQUIRED)
