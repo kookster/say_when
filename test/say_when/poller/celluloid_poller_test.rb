@@ -6,7 +6,7 @@ describe SayWhen::Poller::CelluloidPoller do
   let (:poller) { SayWhen::Poller::CelluloidPoller.new(100) }
 
   it 'should instantiate the poller' do
-    poller.tick_length.must_equal 100
+    expect(poller.tick_length).must_equal 100
   end
 
   it 'should start the poller running, and can stop it' do

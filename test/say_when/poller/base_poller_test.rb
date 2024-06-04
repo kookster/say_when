@@ -37,6 +37,6 @@ describe SayWhen::Poller::BasePoller do
   end
 
   it "defines an error tick length" do
-    poller.error_tick_length.must_equal 0
+    expect(poller.error_tick_length).must_equal 0
   end
 end

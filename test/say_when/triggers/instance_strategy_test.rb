@@ -8,6 +8,6 @@ describe SayWhen::Triggers::InstanceStrategy do
     job = Minitest::Mock.new
     job.expect(:scheduled, true)
     t = SayWhen::Triggers::InstanceStrategy.new(next_at_method: 'test_next_at_method', job: job)
-    t.wont_be_nil
+    expect(t).wont_be_nil
   end
 end

@@ -1,7 +1,7 @@
 # encoding: utf-8
 
-require 'active_record'
-require 'sqlite3'
+# require 'active_record'
+# require 'sqlite3'
 
 ActiveRecord::Base.logger = Logger.new('/dev/null')
 
