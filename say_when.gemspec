@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_runtime_dependency('activesupport')
+  spec.add_runtime_dependency('sorted_set')
 
   spec.add_development_dependency('bundler')
   spec.add_development_dependency('rake')
@@ -28,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('simplecov')
   spec.add_development_dependency('coveralls')
 
-  spec.add_development_dependency('sqlite3')
+  spec.add_development_dependency('sqlite3', '~> 1.4')
   spec.add_development_dependency('activerecord')
   spec.add_development_dependency('celluloid')
   spec.add_development_dependency('concurrent-ruby')
