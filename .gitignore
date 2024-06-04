@@ -13,5 +13,5 @@
 *.gem
 *.DS_Store
 .ruby-version
-test/db/test.db
+test/db/*
 notes.md

@@ -44,8 +44,8 @@ module SayWhen
 
         self.table_name = "#{SayWhen.options[:table_prefix]}say_when_jobs"
 
-        serialize :trigger_options
-        serialize :data
+        serialize :trigger_options, coder: YAML
+        serialize :data, coder: YAML
 
         belongs_to :scheduled, polymorphic: true, optional: true
         has_many :job_executions, class_name: 'SayWhen::Storage::ActiveRecordStrategy::JobExecution'
@@ -93,7 +93,9 @@ module SayWhen
         end
 
         def self.check_connection
-          if ActiveRecord::Base.respond_to?(:clear_active_connections!)
+          if ActiveRecord::Base.respond_to?(:connection_handler) && ActiveRecord::Base.connection_handler
+            ActiveRecord::Base.connection_handler.clear_active_connections!
+          elsif ActiveRecord::Base.respond_to?(:clear_active_connections!)
             ActiveRecord::Base.clear_active_connections!
           elsif ActiveRecord::Base.respond_to?(:verify_active_connections!)
             ActiveRecord::Base.verify_active_connections!

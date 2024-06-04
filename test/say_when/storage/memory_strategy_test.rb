@@ -23,31 +23,31 @@ describe SayWhen::Storage::MemoryStrategy do
 
   it 'job can be created' do
     j = strategy.create(valid_attributes)
-    j.wont_be_nil
+    expect(j).wont_be_nil
   end
 
   it 'can execute the task for the job' do
-    job.execute_job( { result: 1 } ).must_equal 1
+    expect(job.execute_job( { result: 1 } )).must_equal 1
   end
 
   it 'can execute the job' do
     j = strategy.create(valid_attributes)
-    j.execute.must_equal 1
+    expect(j.execute).must_equal 1
   end
 
   it 'can serialize' do
     j = strategy.create(valid_attributes)
-    j.to_hash[:job_class].must_equal 'SayWhen::Test::TestTask'
+    expect(j.to_hash[:job_class]).must_equal 'SayWhen::Test::TestTask'
   end
 
   it 'can acquire and release the next job' do
     j = strategy.create(valid_attributes)
-    j.wont_be_nil
+    expect(j).wont_be_nil
     next_job  = strategy.acquire_next(2.days.since)
-    next_job.wont_be_nil
-    next_job.status.must_equal "acquired"
+    expect(next_job).wont_be_nil
+    expect(next_job.status).must_equal "acquired"
     strategy.release(next_job)
-    next_job.status.must_equal "waiting"
+    expect(next_job.status).must_equal "waiting"
   end
 
   it 'can reset acquired jobs' do
@@ -55,7 +55,7 @@ describe SayWhen::Storage::MemoryStrategy do
     j.status = 'acquired'
     j.updated_at = 2.hours.ago
     strategy.reset_acquired(3600)
-    j.status.must_equal 'waiting'
+    expect(j.status).must_equal 'waiting'
   end
 
   it 'can be fired' do
@@ -70,20 +70,20 @@ describe SayWhen::Storage::MemoryStrategy do
     now = Time.now
     Time.stub(:now, now) do
       strategy.fired(j, now)
-      j.next_fire_at.must_equal ce.next_fire_at(now)
-      j.last_fire_at.must_equal now
-      j.status.must_equal SayWhen::Storage::BaseJob::STATE_WAITING
+      expect(j.next_fire_at).must_equal ce.next_fire_at(now)
+      expect(j.last_fire_at).must_equal now
+      expect(j.status).must_equal SayWhen::Storage::BaseJob::STATE_WAITING
     end
   end
 
   it "can be serialized to a hash" do
     j = strategy.create(valid_attributes)
-    strategy.serialize(j).class.must_equal Hash
+    expect(strategy.serialize(j).class).must_equal Hash
   end
 
   it "can be deserialized from a hash" do
     j = strategy.deserialize(valid_attributes)
-    j.class.must_equal SayWhen::Storage::MemoryStrategy::Job
+    expect(j.class).must_equal SayWhen::Storage::MemoryStrategy::Job
   end
 
   it "can reset acquired jobs" do
@@ -91,6 +91,6 @@ describe SayWhen::Storage::MemoryStrategy do
     j.status = 'acquired'
     j.updated_at = 2.hours.ago
     SayWhen::Storage::MemoryStrategy::Job.reset_acquired(3600)
-    j.status.must_equal 'waiting'
+    expect(j.status).must_equal 'waiting'
   end
 end

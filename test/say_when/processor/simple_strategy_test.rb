@@ -10,6 +10,6 @@ describe SayWhen::Processor::SimpleStrategy do
   it 'process a job by sending a message' do
     job = Minitest::Mock.new
     job.expect(:execute, 'done!')
-    processor.process(job).must_equal 'done!'
+    expect(processor.process(job)).must_equal 'done!'
   end
 end

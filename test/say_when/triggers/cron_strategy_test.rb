@@ -6,6 +6,6 @@ require 'say_when/triggers/cron_strategy'
 describe SayWhen::Triggers::CronStrategy do
   it 'should be constucted with a cron expression' do
     t = SayWhen::Triggers::CronStrategy.new(expression: '0 0 * ? * * *', job: {})
-    t.wont_be_nil
+    expect(t).wont_be_nil
   end
 end
