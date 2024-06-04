@@ -93,7 +93,7 @@ module SayWhen
         end
 
         def self.check_connection
-          if ActiveRecord::Base.respond_to?(:connection_handler)
+          if ActiveRecord::Base.respond_to?(:connection_handler) && ActiveRecord::Base.connection_handler
             ActiveRecord::Base.connection_handler.clear_active_connections!
           elsif ActiveRecord::Base.respond_to?(:clear_active_connections!)
             ActiveRecord::Base.clear_active_connections!
